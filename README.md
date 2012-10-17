@@ -17,5 +17,5 @@ For example you could configure the following bindings:
 
     en-GB=example.co.uk
     fr-FR=example.fr
-    de.DE=example.de
-    nl.NL=example.nl
+    de-DE=example.de
+    nl-NL=example.nl
