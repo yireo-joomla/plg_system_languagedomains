@@ -21,7 +21,7 @@
     <config>
 	    <fields name="params">
             <fieldset name="basic">
-                <field name="bindings" type="textarea" rows="20" label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL" description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC" />
+                <field name="bindings" type="textarea" cols="50" rows="10" label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL" description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC" />
 	        </fieldset>
         </fields>
     </config>
