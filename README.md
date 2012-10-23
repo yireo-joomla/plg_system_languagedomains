@@ -20,5 +20,5 @@ For example you could configure the following bindings:
     de-DE=example.de
     nl-NL=example.nl
 
-Known issues:
+Known issues / Todo:
 * Language SEF-prefix is still loaded, while not needed
