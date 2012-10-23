@@ -19,3 +19,6 @@ For example you could configure the following bindings:
     fr-FR=example.fr
     de-DE=example.de
     nl-NL=example.nl
+
+Known issues:
+* Language SEF-prefix is still loaded, while not needed
