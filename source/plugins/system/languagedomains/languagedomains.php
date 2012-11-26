@@ -22,7 +22,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 {
     public function __construct(&$subject, $config)
     {
+        // Call the constructor of the parent-plugin and JPlugin
         parent::__construct($subject, $config);
+
+        // Reset certain parameters of the parent plugin
         $this->params->set('remove_default_prefix', 1);
         $this->params->set('detect_browser', 0);
     }
@@ -71,7 +74,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
                     setcookie(JApplication::getHash('language'), $languageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Redirect
-                    echo $newUrl;exit;
                     $application->redirect($newUrl);
                     $application->close();
                 }
@@ -96,10 +98,12 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             }
         }
 
+        // Override the default language if the domain was matched
         if(empty($languageTag) && !empty($newLanguageTag)) {
             $languageTag = $newLanguageTag;
         }
         
+        // Make sure the current language-tag is registered as current
         if(!empty($languageTag)) {
             JRequest::setVar('language', $languageTag);
             JFactory::getLanguage()->setDefault($languageTag);
@@ -112,6 +116,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
         }
         
+        // Run the event of the parent-plugin
         return parent::onAfterInitialise();
     }
 
@@ -143,7 +148,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             $languageCode = $language->lang_code;
             if(!isset($bindings[$languageCode])) continue;
             $domain = $bindings[$languageCode];
-            $domain = $this->getUrlFromDomain($domain).$languageSef.'/';
+            $domain = $this->getUrlFromDomain($domain);
 
             // Replace full URLs
             if(preg_match_all('/([^\'\"]+)\/'.$languageSef.'\//', $buffer, $matches)) {
