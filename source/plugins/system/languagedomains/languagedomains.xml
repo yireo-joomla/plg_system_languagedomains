@@ -12,6 +12,7 @@
     
     <files>
         <filename plugin="languagedomains">languagedomains.php</filename>
+        <filename>index.html</filename>
     </files>
 
     <languages>
