@@ -8,9 +8,8 @@ neccessary domain if needed. Also, it will try to fix all of the generated Jooml
 Steps to get it working:
 * Make sure Joomla! SEF is fully enabled
 * Install this plugin in Joomla!
-* Enable "System - Language Filter" plugin
+* Disable "System - Language Filter" core-plugin (!)
 * Enable "System - Language Domains" plugin (this plugin)
-* Configure this plugin to have a higher ordering then the "System - Language Filter" plugin
 * Configure this plugin for the proper bindings.
 
 For example you could configure the following bindings:
