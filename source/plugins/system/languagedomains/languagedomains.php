@@ -11,14 +11,22 @@
 // no direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-jimport( 'joomla.plugin.plugin' );
+jimport('joomla.plugin.plugin');
+require_once JPATH_SITE.'/plugins/system/languagefilter/languagefilter.php';
 
 /**
  * @package Joomla!
  * @subpackage System
  */
-class plgSystemLanguageDomains extends JPlugin
+class plgSystemLanguageDomains extends plgSystemLanguageFilter
 {
+    public function __construct(&$subject, $config)
+    {
+        parent::__construct($subject, $config);
+        $this->params->set('remove_default_prefix', 1);
+        $this->params->set('detect_browser', 0);
+    }
+
     /**
      * Event onAfterInitialise
      *
@@ -26,7 +34,7 @@ class plgSystemLanguageDomains extends JPlugin
      * @param null
      * @return null
      */
-	public function onAfterInitialise()
+    public function onAfterInitialise()
     {
         // If this is the Administrator-application, or if debugging is set, do nothing
         $application = JFactory::getApplication();
@@ -38,15 +46,14 @@ class plgSystemLanguageDomains extends JPlugin
         $application->setDetectBrowser(false);
 
         // Detect the language
-        $languageTag = JFactory::getLanguage()->getTag();
-        $languageInput = JRequest::getString('language');
+        $languageTag = JRequest::getString('language');
 
         // Get the bindings
         $bindings = $this->getBindings();
 
         // Check for the binding of the current language
-        if(!empty($languageInput)) {
-            if(isset($bindings[$languageTag])) {
+        if(!empty($languageTag)) {
+            if(array_key_exists($languageTag, $bindings)) {
                 $domain = $bindings[$languageTag];
                 if(stristr(JURI::current(), $domain) == false) {
 
@@ -57,22 +64,14 @@ class plgSystemLanguageDomains extends JPlugin
                     $currentUrl = JURI::current();
                     $newUrl = str_replace(JURI::base(), $domain, $currentUrl);
 
-                    // Strip out the sef-language-part
-                    $languages = JLanguageHelper::getLanguages('sef');
-                    foreach($languages as $languageSef => $language) {
-                        if($language->lang_code == $languageTag) {
-                            //$newUrl = str_replace('/'.$languageSef.'/', '/', $newUrl); // @todo: This d
-                            break;
-                        }
-                    }
-
                     // Set the cookie
                     $conf = JFactory::getConfig();
-                    $cookie_domain  = $conf->get('config.cookie_domain', '');
-                    $cookie_path    = $conf->get('config.cookie_path', '/');
+                    $cookie_domain = $conf->get('config.cookie_domain', '');
+                    $cookie_path = $conf->get('config.cookie_path', '/');
                     setcookie(JApplication::getHash('language'), $languageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Redirect
+                    echo $newUrl;exit;
                     $application->redirect($newUrl);
                     $application->close();
                 }
@@ -80,24 +79,40 @@ class plgSystemLanguageDomains extends JPlugin
         } else {
 
             // Check if the current default language is correct
-            foreach($bindings as $languageCode => $domain) {
-                if(stristr(JURI::current(), $domain) == true) {
+            foreach($bindings as $bindingLanguageTag => $bindingDomain) {
+                if(stristr(JURI::current(), $bindingDomain) == true) {
 
                     // Set the cookie
                     $conf = JFactory::getConfig();
-                    $cookie_domain  = $conf->get('config.cookie_domain', '');
-                    $cookie_path    = $conf->get('config.cookie_path', '/');
-                    setcookie(JApplication::getHash('language'), $languageCode, time() + 365 * 86400, $cookie_path, $cookie_domain);
+                    $cookie_domain = $conf->get('config.cookie_domain', '');
+                    $cookie_path = $conf->get('config.cookie_path', '/');
+                    setcookie(JApplication::getHash('language'), $bindingLanguageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Change the current default language
-                    JRequest::setVar('language', $languageCode);
-                    JFactory::getLanguage()->setDefault($languageCode);
-                    JFactory::getLanguage()->setLanguage($languageCode);
+                    $newLanguageTag = $bindingLanguageTag;
 
                     break;
                 }
             }
         }
+
+        if(empty($languageTag) && !empty($newLanguageTag)) {
+            $languageTag = $newLanguageTag;
+        }
+        
+        if(!empty($languageTag)) {
+            JRequest::setVar('language', $languageTag);
+            JFactory::getLanguage()->setDefault($languageTag);
+            JFactory::getLanguage()->setLanguage($languageTag);
+
+            $component = JComponentHelper::getComponent('com_languages');
+            $component->params->set('site', $languageTag);
+
+            self::$default_lang = $languageTag;
+            self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
+        }
+        
+        return parent::onAfterInitialise();
     }
 
     /**
@@ -107,7 +122,7 @@ class plgSystemLanguageDomains extends JPlugin
      * @param null
      * @return null
      */
-	public function onAfterRender()
+    public function onAfterRender()
     {
         // If this is the Administrator-application, or if debugging is set, do nothing
         $application = JFactory::getApplication();
@@ -155,7 +170,7 @@ class plgSystemLanguageDomains extends JPlugin
      * @param null
      * @return null
      */
-	protected function getBindings()
+    protected function getBindings()
     {
         $bindings = trim($this->params->get('bindings'));
         if(empty($bindings)) {
@@ -187,7 +202,7 @@ class plgSystemLanguageDomains extends JPlugin
      * @param string
      * @return string
      */
-	protected function getUrlFromDomain($domain)
+    protected function getUrlFromDomain($domain)
     {
         // Add URL-elements to the domain
         if(preg_match('/^(http|https):\/\//', $domain) == false) $domain = 'http://'.$domain;
