@@ -53,6 +53,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
         // Get the bindings
         $bindings = $this->getBindings();
+        if(empty($bindings)) {
+            return;
+        }
 
         // Check for the binding of the current language
         if(!empty($languageTag)) {
@@ -140,6 +143,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
     
         // Get the bindings
         $bindings = $this->getBindings();
+        if(empty($bindings)) {
+            return;
+        }
 
         // Loop through the languages and check for any URL
         $languages = JLanguageHelper::getLanguages('sef');
