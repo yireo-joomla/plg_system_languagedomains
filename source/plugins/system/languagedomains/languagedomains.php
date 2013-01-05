@@ -39,8 +39,11 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
     public function onAfterInitialise()
     {
-        // If this is the Administrator-application, or if debugging is set, do nothing
+        // Enable item-associations
         $application = JFactory::getApplication();
+		$application->item_associations = 1;
+
+        // If this is the Administrator-application, or if debugging is set, do nothing
         if($application->isAdmin()) {
             return;
         }
@@ -117,7 +120,8 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         }
         
         // Run the event of the parent-plugin
-        return parent::onAfterInitialise();
+        $rt = parent::onAfterInitialise();
+        return $rt;
     }
 
     /**
