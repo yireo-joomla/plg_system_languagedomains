@@ -1,5 +1,6 @@
 System - Language Domains plugin
 ================================
+Homepage: http://www.yireo.com/software/joomla-extensions/language-domains
 
 This Joomla! 2.5 / 3.0 plugin allows you to assign a domain per lanuage. You configure specific "bindings" in the parameters of this plugin. Each line
 contains a binding between a language-tag and a domain. The plugin checks whether the current domain matches the specified language, and redirects to the
