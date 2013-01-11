@@ -7,7 +7,7 @@
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
     
     <files>
@@ -17,6 +17,7 @@
 
     <languages>
         <language tag="en-GB">en-GB.plg_system_languagedomains.ini</language>
+        <language tag="en-GB">en-GB.plg_system_languagedomains.sys.ini</language>
     </languages>
     
     <config>
