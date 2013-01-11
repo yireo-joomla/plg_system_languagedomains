@@ -20,16 +20,6 @@ require_once JPATH_SITE.'/plugins/system/languagefilter/languagefilter.php';
  */
 class plgSystemLanguageDomains extends plgSystemLanguageFilter
 {
-    public function __construct(&$subject, $config)
-    {
-        // Call the constructor of the parent-plugin and JPlugin
-        parent::__construct($subject, $config);
-
-        // Reset certain parameters of the parent plugin
-        $this->params->set('remove_default_prefix', 1);
-        $this->params->set('detect_browser', 0);
-    }
-
     /**
      * Event onAfterInitialise
      *
@@ -39,6 +29,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
     public function onAfterInitialise()
     {
+        // Reset certain parameters of the parent plugin
+        $this->params->set('remove_default_prefix', 1);
+        $this->params->set('detect_browser', 0);
+
         // Enable item-associations
         $application = JFactory::getApplication();
 		$application->item_associations = 1;
@@ -136,6 +130,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
     public function onAfterRender()
     {
+        // Reset certain parameters of the parent plugin
+        $this->params->set('remove_default_prefix', 1);
+        $this->params->set('detect_browser', 0);
+
         // If this is the Administrator-application, or if debugging is set, do nothing
         $application = JFactory::getApplication();
         if($application->isAdmin() || JDEBUG) {
