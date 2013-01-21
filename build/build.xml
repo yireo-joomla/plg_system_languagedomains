@@ -22,7 +22,8 @@
                 <include name="**" />
             </fileset>
             <fileset dir="${source}/administrator/language/en-GB">
-                <include name="**" />
+                <include name="en-GB.plg_system_languagedomains.ini" />
+                <include name="en-GB.plg_system_languagedomains.sys.ini" />
             </fileset>
         </copy>
         <copy file="${gpl}" tofile="${tmp_dir}/LICENSE.txt" overwrite="true" />
