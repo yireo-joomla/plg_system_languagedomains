@@ -21,6 +21,19 @@ require_once JPATH_SITE.'/plugins/system/languagefilter/languagefilter.php';
 class plgSystemLanguageDomains extends plgSystemLanguageFilter
 {
     /**
+     * Constructor
+     *
+     * @access public
+     * @param mixed $subject
+     * @param mixed $config
+     * @return mixed
+     */
+	public function __construct(&$subject, $config)
+	{
+        return parent::__construct($subject, $config);
+    }
+    
+    /**
      * Event onAfterInitialise
      *
      * @access public
@@ -36,6 +49,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         // Enable item-associations
         $application = JFactory::getApplication();
 		$application->item_associations = 1;
+		$application->menu_associations = $this->params->get('menu_associations', 0);
 
         // If this is the Administrator-application, or if debugging is set, do nothing
         if($application->isAdmin()) {
