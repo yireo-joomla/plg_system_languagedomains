@@ -233,6 +233,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         // Add URL-elements to the domain
         if(preg_match('/^(http|https):\/\//', $domain) == false) $domain = 'http://'.$domain;
         if(preg_match('/\/$/', $domain) == false) $domain = $domain.'/';
+        if(JFactory::getConfig()->get('sef_rewrite', 0) == 0 && preg_match('/index\.php/', $domain) == false) $domain = $domain.'index.php/';
         return $domain;
     } 
 }
