@@ -48,11 +48,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
         // Enable item-associations
         $application = JFactory::getApplication();
-		$application->item_associations = 1;
-		$application->menu_associations = $this->params->get('menu_associations', 0);
+		$application->item_associations = $this->params->get('item_associations', 1);
 
         // If this is the Administrator-application, or if debugging is set, do nothing
-        if($application->isAdmin()) {
+        if($application->isSite() == false) {
             return;
         }
 

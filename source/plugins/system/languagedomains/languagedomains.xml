@@ -2,12 +2,12 @@
 <extension version="2.5" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_LANGUAGEDOMAINS</name>
     <author>Yireo</author>
-    <creationDate>January 2013</creationDate>
+    <creationDate>April 2013</creationDate>
 	<copyright>Copyright (C) 2013 Yireo.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
     
     <files>
@@ -26,10 +26,10 @@
                 <field name="bindings" type="textarea" rows="20" 
                     label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL" 
                     description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC" />
-				<field name="menu_associations" type="radio"
-                    description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_MENU_ASSOCIATIONS_DESC"
-					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_MENU_ASSOCIATIONS_LABEL"
-					default="0"
+				<field name="item_associations" type="radio"
+                    description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_DESC"
+					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_LABEL"
+					default="1"
 				>
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
