@@ -49,6 +49,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         // Enable item-associations
         $application = JFactory::getApplication();
 		$application->item_associations = $this->params->get('item_associations', 1);
+		$application->menu_associations = $this->params->get('menu_associations', 1);
 
         // If this is the Administrator-application, or if debugging is set, do nothing
         if($application->isSite() == false) {
@@ -119,7 +120,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         // Make sure the current language-tag is registered as current
         if(!empty($languageTag)) {
             JRequest::setVar('language', $languageTag);
-            JFactory::getLanguage()->setDefault($languageTag);
             JFactory::getLanguage()->setLanguage($languageTag);
 
             $component = JComponentHelper::getComponent('com_languages');
