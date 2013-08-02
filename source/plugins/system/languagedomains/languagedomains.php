@@ -30,7 +30,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
 	public function __construct(&$subject, $config)
 	{
-        return parent::__construct($subject, $config);
+        $rt = parent::__construct($subject, $config);
+
+        return $rt;
     }
     
     /**
@@ -49,7 +51,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         // Enable item-associations
         $application = JFactory::getApplication();
 		$application->item_associations = $this->params->get('item_associations', 1);
-		$application->menu_associations = $this->params->get('menu_associations', 1);
+		$application->menu_associations = $this->params->get('item_associations', 1);
 
         // If this is the Administrator-application, or if debugging is set, do nothing
         if($application->isSite() == false) {
@@ -131,6 +133,12 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         
         // Run the event of the parent-plugin
         $rt = parent::onAfterInitialise();
+
+        // Re-enable item-associations
+        $application = JFactory::getApplication();
+		$application->item_associations = $this->params->get('item_associations', 1);
+		$application->menu_associations = $this->params->get('item_associations', 1);
+
         return $rt;
     }
 
