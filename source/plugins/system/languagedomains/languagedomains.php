@@ -3,7 +3,7 @@
  * Joomla! System plugin - Language Domains
  *
  * @author Yireo (info@yireo.com)
- * @copyright Copyright 2012 Yireo.com. All rights reserved
+ * @copyright Copyright 2013 Yireo.com. All rights reserved
  * @license GNU Public License
  * @link http://www.yireo.com
  */
@@ -87,7 +87,8 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
                     $conf = JFactory::getConfig();
                     $cookie_domain = $conf->get('config.cookie_domain', '');
                     $cookie_path = $conf->get('config.cookie_path', '/');
-                    setcookie(JApplication::getHash('language'), $languageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
+                    //setcookie(JApplication::getHash('language'), $languageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
+                    setcookie(JApplication::getHash('language'), null, time() - 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Redirect
                     $application->redirect($newUrl);
@@ -104,7 +105,8 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
                     $conf = JFactory::getConfig();
                     $cookie_domain = $conf->get('config.cookie_domain', '');
                     $cookie_path = $conf->get('config.cookie_path', '/');
-                    setcookie(JApplication::getHash('language'), $bindingLanguageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
+                    setcookie(JApplication::getHash('language'), null, time() - 365 * 86400, $cookie_path, $cookie_domain);
+                    //setcookie(JApplication::getHash('language'), $bindingLanguageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Change the current default language
                     $newLanguageTag = $bindingLanguageTag;
@@ -182,7 +184,11 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             // Replace full URLs
             if(preg_match_all('/([^\'\"]+)\/'.$languageSef.'\//', $buffer, $matches)) {
                 foreach($matches[0] as $match) {
-                    $buffer = str_replace($match, $domain, $buffer);
+                    $workMatch = str_replace('index.php/', '', $match);
+                    $matchDomain = $this->getDomainFromUrl($workMatch);
+                    if(empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.'.$matchDomain, $bindings)) {
+                        $buffer = str_replace($match, $domain, $buffer);
+                    }
                 }
             }
 
@@ -243,5 +249,23 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         if(preg_match('/\/$/', $domain) == false) $domain = $domain.'/';
         if(JFactory::getConfig()->get('sef_rewrite', 0) == 0 && preg_match('/index\.php/', $domain) == false) $domain = $domain.'index.php/';
         return $domain;
+    } 
+
+    /* 
+     * Helper-method to get a proper URL from the domain
+     *
+     * @access public
+     * @param string
+     * @return string
+     */
+    protected function getDomainFromUrl($url)
+    {
+        // Add URL-elements to the domain
+        if(preg_match('/^(http|https):\/\/([a-zA-Z0-9\.\-\_]+)/', $url, $match)) {
+            $domain = $match[2];
+            $domain = preg_replace('/^www\./', '', $domain);
+            return $domain;
+        }
+        return false;
     } 
 }
