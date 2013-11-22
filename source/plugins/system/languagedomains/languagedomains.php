@@ -51,6 +51,15 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
     public function onAfterInitialise()
     {
+        // Remove the cookie if it exists
+        $languageHash = JApplication::getHash('language');
+        if(isset($_COOKIE[$languageHash])) {
+            $conf = JFactory::getConfig();
+            $cookie_domain = $conf->get('config.cookie_domain', '');
+            $cookie_path = $conf->get('config.cookie_path', '/');
+            setcookie($languageHash, 'test', time() - 3600, $cookie_path, $cookie_domain);
+        }
+
         // Reset certain parameters of the parent plugin
         $this->params->set('remove_default_prefix', 1);
         $this->params->set('detect_browser', 0);
@@ -107,13 +116,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             // Check if the current default language is correct
             foreach($bindings as $bindingLanguageTag => $bindingDomain) {
                 if(stristr(JURI::current(), $bindingDomain) == true) {
-
-                    // Set the cookie
-                    $conf = JFactory::getConfig();
-                    $cookie_domain = $conf->get('config.cookie_domain', '');
-                    $cookie_path = $conf->get('config.cookie_path', '/');
-                    setcookie(JApplication::getHash('language'), null, time() - 365 * 86400, $cookie_path, $cookie_domain);
-                    //setcookie(JApplication::getHash('language'), $bindingLanguageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 
                     // Change the current default language
                     $newLanguageTag = $bindingLanguageTag;
