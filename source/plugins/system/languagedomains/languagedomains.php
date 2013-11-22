@@ -30,8 +30,15 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
      */
 	public function __construct(&$subject, $config)
 	{
-        $rt = parent::__construct($subject, $config);
+        JLoader::import( 'joomla.version' );
+        $version = new JVersion();
+        $majorVersion = $version->getShortVersion();
+        if(version_compare($majorVersion, '3.2', 'ge')) {
+            require_once(JPATH_SITE.'/plugins/system/languagedomains/rewrite-32/associations.php');
+            require_once(JPATH_SITE.'/plugins/system/languagedomains/rewrite-32/multilang.php');
+        }
 
+        $rt = parent::__construct($subject, $config);
         return $rt;
     }
     
