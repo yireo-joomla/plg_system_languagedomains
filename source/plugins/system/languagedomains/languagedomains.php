@@ -3,7 +3,7 @@
  * Joomla! System plugin - Language Domains
  *
  * @author Yireo (info@yireo.com)
- * @copyright Copyright 2013 Yireo.com. All rights reserved
+ * @copyright Copyright 2014 Yireo.com. All rights reserved
  * @license GNU Public License
  * @link http://www.yireo.com
  */
