@@ -39,9 +39,38 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         }
 
         $rt = parent::__construct($subject, $config);
+
+        // If this is the Site-application
+        $application = JFactory::getApplication();
+        if ($application->isSite() == true)
+        {
+        	// Get the bindings
+        	$bindings = $this->getBindings();
+        	if ($bindings)
+        	{
+        		// Check if the current default language is correct
+        		foreach ($bindings as $bindingLanguageTag => $bindingDomain)
+        		{
+        			if (stristr(JURI::current(), $bindingDomain) == true)
+        			{
+        				// Change the current default language
+        				$newLanguageTag = $bindingLanguageTag;
+        				break;
+        			}
+        		}
+
+        		// Make sure the current language-tag is registered as current
+        		if (!empty($newLanguageTag) and $newLanguageTag != self::$default_lang)
+        		{
+        			JFactory::getLanguage()->setLanguage($newLanguageTag);
+        			JFactory::getLanguage()->load('joomla', JPATH_SITE, $newLanguageTag, true);
+        		}
+        	}
+        }
+
         return $rt;
     }
-    
+
     /**
      * Event onAfterInitialise
      *
@@ -57,7 +86,8 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             $conf = JFactory::getConfig();
             $cookie_domain = $conf->get('config.cookie_domain', '');
             $cookie_path = $conf->get('config.cookie_path', '/');
-            setcookie($languageHash, 'test', time() - 3600, $cookie_path, $cookie_domain);
+            setcookie($languageHash, '', time() - 3600, $cookie_path, $cookie_domain);
+            JFactory::getApplication()->input->cookie->set($languageHash, '');
         }
 
         // Reset certain parameters of the parent plugin
@@ -129,7 +159,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         if(empty($languageTag) && !empty($newLanguageTag)) {
             $languageTag = $newLanguageTag;
         }
-        
+
         // Make sure the current language-tag is registered as current
         if(!empty($languageTag)) {
             JRequest::setVar('language', $languageTag);
@@ -141,7 +171,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             self::$default_lang = $languageTag;
             self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
         }
-        
+
         // Run the event of the parent-plugin
         $rt = parent::onAfterInitialise();
 
@@ -174,7 +204,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
         // Fetch the document buffer
         $buffer = JResponse::getBody();
-    
+
         // Get the bindings
         $bindings = $this->getBindings();
         if(empty($bindings)) {
@@ -208,7 +238,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
                 }
             }
         }
-        
+
         JResponse::setBody($buffer);
     }
 
@@ -225,7 +255,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         if(empty($bindings)) {
             return array();
         }
-    
+
         $bindingsArray = explode("\n", $bindings);
         $bindings = array();
         foreach($bindingsArray as $index => $binding) {
@@ -244,7 +274,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         return $bindings;
     }
 
-    /* 
+    /*
      * Helper-method to get a proper URL from the domain
      *
      * @access public
@@ -258,9 +288,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         if(preg_match('/\/$/', $domain) == false) $domain = $domain.'/';
         if(JFactory::getConfig()->get('sef_rewrite', 0) == 0 && preg_match('/index\.php/', $domain) == false) $domain = $domain.'index.php/';
         return $domain;
-    } 
+    }
 
-    /* 
+    /*
      * Helper-method to get a proper URL from the domain
      *
      * @access public
@@ -276,5 +306,5 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             return $domain;
         }
         return false;
-    } 
+    }
 }
