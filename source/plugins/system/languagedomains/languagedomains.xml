@@ -17,6 +17,11 @@
         <filename plugin="languagedomains">languagedomains.php</filename>
     </files>
 
+    <languages>
+        <language tag="en-GB">en-GB.plg_system_languagedomains.ini</language>
+        <language tag="en-GB">en-GB.plg_system_languagedomains.sys.ini</language>
+    </languages>
+
     <config>
 	    <fields name="params">
             <fieldset name="basic">
