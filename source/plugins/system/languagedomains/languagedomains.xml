@@ -7,11 +7,10 @@
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
-        <folder>language</folder>
         <folder>rewrite-32</folder>
         <filename>index.html</filename>
         <filename plugin="languagedomains">languagedomains.php</filename>
@@ -47,4 +46,8 @@
 	        </fieldset>
         </fields>
     </config>
+
+    <updateservers>
+        <server type="extension" priority="1" name="plg_system_languagedomains">http://www.yireo.com/updates/plg_system_languagedomains.xml</server>
+    </updateservers>
 </extension>
