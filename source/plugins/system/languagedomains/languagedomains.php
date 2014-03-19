@@ -41,16 +41,26 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			require_once (JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/multilang.php');
 		}
 
+		$application = JFactory::getApplication();
 		$rt = parent::__construct($subject, $config);
 
+        // Load the current language as detected from the URL
+		$currentLanguageTag = $application->input->get('language');
+
 		// If this is the Site-application
-		$application = JFactory::getApplication();
 		if ($application->isSite() == true)
 		{
 			// Get the bindings
 			$bindings = $this->getBindings();
 			if ($bindings)
 			{
+                // Check whether the currently defined language is in the list of domains
+                if (!isset($bindings[$currentLanguageTag])) {
+					JFactory::getLanguage()->setLanguage($currentLanguageTag);
+					JFactory::getLanguage()->load('joomla', JPATH_SITE, $currentLanguageTag, true);
+                    return $rt;
+                }
+
 				// Check if the current default language is correct
 				foreach ($bindings as $bindingLanguageTag => $bindingDomain)
 				{
@@ -114,14 +124,24 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		$application->setDetectBrowser(false);
 
 		// Detect the language
-		$languageTag = JRequest::getString('language');
+		$language = JFactory::getLanguage();
+        $languageTag = $language->getTag();
 
 		// Get the bindings
 		$bindings = $this->getBindings();
-		if (empty($bindings))
-		{
-			return;
-		}
+
+        // Preliminary checks
+        if (empty($bindings) || (!empty($languageTag) && !isset($bindings[$languageTag]))) {
+
+    		// Run the event of the parent-plugin
+	    	$rt = parent::onAfterInitialise();
+
+		    // Re-enable item-associations
+    		$application = JFactory::getApplication();
+	    	$application->item_associations = $this->params->get('item_associations', 1);
+		    $application->menu_associations = $this->params->get('item_associations', 1);
+            return;
+        }
 
 		// Check for the binding of the current language
 		if (!empty($languageTag))
@@ -154,13 +174,11 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		}
 		else
 		{
-
 			// Check if the current default language is correct
 			foreach ($bindings as $bindingLanguageTag => $bindingDomain)
 			{
 				if (stristr(JURI::current(), $bindingDomain) == true)
 				{
-
 					// Change the current default language
 					$newLanguageTag = $bindingLanguageTag;
 
