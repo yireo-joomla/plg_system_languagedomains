@@ -140,6 +140,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
     		$application = JFactory::getApplication();
 	    	$application->item_associations = $this->params->get('item_associations', 1);
 		    $application->menu_associations = $this->params->get('item_associations', 1);
+		$language = JFactory::getLanguage();
+        $languageTag = $language->getTag();
+        echo $languageTag;exit;
             return;
         }
 
@@ -202,8 +205,8 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			$component = JComponentHelper::getComponent('com_languages');
 			$component->params->set('site', $languageTag);
 
-			self::$default_lang = $languageTag;
-			self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
+			//self::$default_lang = $languageTag;
+			//self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
 		}
 
 		// Run the event of the parent-plugin
@@ -319,6 +322,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			}
 		}
 
+        arsort($bindings);
 		return $bindings;
 	}
 
