@@ -257,18 +257,21 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		{
 
 			$languageCode = $language->lang_code;
-			if (!isset($bindings[$languageCode]))
-				continue;
+			if (!isset($bindings[$languageCode])) continue;
+			if (empty($bindings[$languageCode])) continue;
+
 			$domain = $bindings[$languageCode];
 			$domain = $this->getUrlFromDomain($domain);
 
 			// Replace full URLs
-			if (preg_match_all('/([^\'\"]+)\/' . $languageSef . '\//', $buffer, $matches))
+			if (preg_match_all('/([\'\"]+)(.+)\/' . $languageSef . '\//', $buffer, $matches))
 			{
 				foreach ($matches[0] as $match)
 				{
+                    $match = preg_replace('/^(\'|\")/', '', $match);
 					$workMatch = str_replace('index.php/', '', $match);
 					$matchDomain = $this->getDomainFromUrl($workMatch);
+                
 					if (empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.' . $matchDomain, $bindings))
 					{
 						$buffer = str_replace($match, $domain, $buffer);
