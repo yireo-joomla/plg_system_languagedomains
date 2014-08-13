@@ -2,12 +2,12 @@
 <extension version="2.5" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_LANGUAGEDOMAINS</name>
     <author>Yireo</author>
-    <creationDate>March 2014</creationDate>
+    <creationDate>August 2014</creationDate>
 	<copyright>Copyright (C) 2014 Yireo.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
@@ -31,6 +31,7 @@
                     description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_DESC"
 					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_LABEL"
 					default="1"
+					class="btn-group btn-group-yesno"
 				>
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
@@ -39,6 +40,7 @@
 					description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_DESC"
 					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_LABEL"
 					default="0"
+					class="btn-group btn-group-yesno"
 				>
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
