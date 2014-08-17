@@ -253,31 +253,17 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		// Loop through the languages and check for any URL
 		$languages = JLanguageHelper::getLanguages('sef');
+        $debugStartTime = microtime(true);
 		foreach ($languages as $languageSef => $language)
 		{
 
 			$languageCode = $language->lang_code;
 			if (!isset($bindings[$languageCode])) continue;
 			if (empty($bindings[$languageCode])) continue;
+			if (empty($languageSef)) continue;
 
 			$domain = $bindings[$languageCode];
 			$domain = $this->getUrlFromDomain($domain);
-
-			// Replace full URLs
-			if (preg_match_all('/([\'\"]+)(.+)\/' . $languageSef . '\//', $buffer, $matches))
-			{
-				foreach ($matches[0] as $match)
-				{
-                    $match = preg_replace('/^(\'|\")/', '', $match);
-					$workMatch = str_replace('index.php/', '', $match);
-					$matchDomain = $this->getDomainFromUrl($workMatch);
-                
-					if (empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.' . $matchDomain, $bindings))
-					{
-						$buffer = str_replace($match, $domain, $buffer);
-					}
-				}
-			}
 
 			// Replace shortened URLs
 			if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\//', $buffer, $matches))
@@ -285,6 +271,22 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 				foreach ($matches[0] as $index => $match)
 				{
 					$buffer = str_replace($match, $matches[1][$index] . $domain, $buffer);
+				}
+			}
+
+			// Replace full URLs
+			if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\//', $buffer, $matches))
+			{
+				foreach ($matches[0] as $match)
+				{
+                    $match = preg_replace('/(\'|\")/', '', $match);
+					$workMatch = str_replace('index.php/', '', $match);
+					$matchDomain = $this->getDomainFromUrl($workMatch);
+                
+					if (empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.' . $matchDomain, $bindings))
+					{
+						$buffer = str_replace($match, $domain, $buffer);
+					}
 				}
 			}
 		}
