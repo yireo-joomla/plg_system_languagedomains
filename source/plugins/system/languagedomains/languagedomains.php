@@ -2,23 +2,25 @@
 /**
  * Joomla! System plugin - Language Domains
  *
- * @author Yireo (info@yireo.com)
+ * @author    Yireo (info@yireo.com)
  * @copyright Copyright 2014 Yireo.com. All rights reserved
- * @license GNU Public License
- * @link http://www.yireo.com
+ * @license   GNU Public License
+ * @link      http://www.yireo.com
  */
 
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.plugin.plugin');
+
 require_once JPATH_SITE . '/plugins/system/languagefilter/languagefilter.php';
 
 /**
  * Class plgSystemLanguageDomains
  *
- * @package Joomla!
- * @subpackage System
+ * @package     Joomla!
+ * @subpackage  System
+ * @since       2013
  */
 class plgSystemLanguageDomains extends plgSystemLanguageFilter
 {
@@ -26,46 +28,48 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	/**
 	 * Constructor
 	 *
-	 * @access public
-	 * @param mixed $subject
-	 * @param mixed $config
-     *
-	 * @return mixed
+	 * @param   mixed  &$subject  Instance of JEventDispatcher
+	 * @param   mixed  $config    Configuration array
 	 */
 	public function __construct(&$subject, $config)
 	{
 		JLoader::import('joomla.version');
-		$version = new JVersion();
+		$version = new JVersion;
 		$majorVersion = $version->getShortVersion();
+
 		if (version_compare($majorVersion, '3.2', 'ge'))
 		{
-			require_once (JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/associations.php');
-			require_once (JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/multilang.php');
+			require_once JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/associations.php';
+			require_once JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/multilang.php';
 		}
 
 		$application = JFactory::getApplication();
+
 		$rt = parent::__construct($subject, $config);
 
-        // Load the current language as detected from the URL
+		// Load the current language as detected from the URL
 		$currentLanguageTag = $application->input->get('language');
-        if (empty($currentLanguageTag))
-        {
-            $currentLanguageTag = JFactory::getLanguage()->getTag();
-        }
+
+		if (empty($currentLanguageTag))
+		{
+			$currentLanguageTag = JFactory::getLanguage()->getTag();
+		}
 
 		// If this is the Site-application
 		if ($application->isSite() == true)
 		{
 			// Get the bindings
 			$bindings = $this->getBindings();
+
 			if ($bindings)
 			{
-                // Check whether the currently defined language is in the list of domains
-                if (!isset($bindings[$currentLanguageTag]))
-                {
+				// Check whether the currently defined language is in the list of domains
+				if (!isset($bindings[$currentLanguageTag]))
+				{
 					$this->setLanguage($currentLanguageTag);
-                    return $rt;
-                }
+
+					return $rt;
+				}
 
 				// Check if the current default language is correct
 				foreach ($bindings as $bindingLanguageTag => $bindingDomain)
@@ -98,6 +102,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	{
 		// Remove the cookie if it exists
 		$languageHash = JApplication::getHash('language');
+
 		if (isset($_COOKIE[$languageHash]))
 		{
 			$conf = JFactory::getConfig();
@@ -125,31 +130,32 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		// Disable browser-detection
 		$application->setDetectBrowser(false);
 
-        // Detect the language
-        $languageTag = JFactory::getLanguage()->getTag();
+		// Detect the language
+		$languageTag = JFactory::getLanguage()->getTag();
 
 		// Detect the language again
-        if (empty($languageTag))
-        {
-		    $language = JFactory::getLanguage();
-            $languageTag = $language->getTag();
-        }
+		if (empty($languageTag))
+		{
+			$language = JFactory::getLanguage();
+			$languageTag = $language->getTag();
+		}
 
 		// Get the bindings
 		$bindings = $this->getBindings();
 
-        // Preliminary checks
-        if (empty($bindings) || (!empty($languageTag) && !isset($bindings[$languageTag])))
-        {
-    		// Run the event of the parent-plugin
-	    	$rt = parent::onAfterInitialise();
+		// Preliminary checks
+		if (empty($bindings) || (!empty($languageTag) && !isset($bindings[$languageTag])))
+		{
+			// Run the event of the parent-plugin
+			$rt = parent::onAfterInitialise();
 
-		    // Re-enable item-associations
-    		$application = JFactory::getApplication();
-	    	$application->item_associations = $this->params->get('item_associations', 1);
-		    $application->menu_associations = $this->params->get('item_associations', 1);
-            return;
-        }
+			// Re-enable item-associations
+			$application = JFactory::getApplication();
+			$application->item_associations = $this->params->get('item_associations', 1);
+			$application->menu_associations = $this->params->get('item_associations', 1);
+
+			return;
+		}
 
 		// Check for the binding of the current language
 		if (!empty($languageTag))
@@ -157,9 +163,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			if (array_key_exists($languageTag, $bindings))
 			{
 				$domain = $bindings[$languageTag];
+
 				if (stristr(JURI::current(), $domain) == false)
 				{
-
 					// Add URL-elements to the domain
 					$domain = $this->getUrlFromDomain($domain);
 
@@ -233,6 +239,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		// If this is the Administrator-application, or if debugging is set, do nothing
 		$application = JFactory::getApplication();
+
 		if ($application->isAdmin() || JDEBUG)
 		{
 			return;
@@ -243,6 +250,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		// Get the bindings
 		$bindings = $this->getBindings();
+
 		if (empty($bindings))
 		{
 			return;
@@ -250,14 +258,26 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		// Loop through the languages and check for any URL
 		$languages = JLanguageHelper::getLanguages('sef');
-        $debugStartTime = microtime(true);
+		$debugStartTime = microtime(true);
+
 		foreach ($languages as $languageSef => $language)
 		{
-
 			$languageCode = $language->lang_code;
-			if (!isset($bindings[$languageCode])) continue;
-			if (empty($bindings[$languageCode])) continue;
-			if (empty($languageSef)) continue;
+
+			if (!isset($bindings[$languageCode]))
+			{
+				continue;
+			}
+
+			if (empty($bindings[$languageCode]))
+			{
+				continue;
+			}
+
+			if (empty($languageSef))
+			{
+				continue;
+			}
 
 			$domain = $bindings[$languageCode];
 			$domain = $this->getUrlFromDomain($domain);
@@ -276,10 +296,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			{
 				foreach ($matches[0] as $match)
 				{
-                    $match = preg_replace('/(\'|\")/', '', $match);
+					$match = preg_replace('/(\'|\")/', '', $match);
 					$workMatch = str_replace('index.php/', '', $match);
 					$matchDomain = $this->getDomainFromUrl($workMatch);
-                
+
 					if (empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.' . $matchDomain, $bindings))
 					{
 						$buffer = str_replace($match, $domain, $buffer);
@@ -299,6 +319,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	protected function getBindings()
 	{
 		$bindings = trim($this->params->get('bindings'));
+
 		if (empty($bindings))
 		{
 			return array();
@@ -306,12 +327,13 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		$bindingsArray = explode("\n", $bindings);
 		$bindings = array();
+
 		foreach ($bindingsArray as $index => $binding)
 		{
 			$binding = explode('=', $binding);
+
 			if (isset($binding[0]) && isset($binding[1]))
 			{
-
 				$languageCode = trim($binding[0]);
 				$languageCode = str_replace('_', '-', $languageCode);
 
@@ -321,16 +343,17 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			}
 		}
 
-        arsort($bindings);
+		arsort($bindings);
+
 		return $bindings;
 	}
 
 	/**
 	 * Helper-method to get a proper URL from the domain @access public @param string @return string
-     *
-     * @param   string  $domain  Domain to obtain the URL from
-     *
-     * @return string
+	 *
+	 * @param   string  $domain  Domain to obtain the URL from
+	 *
+	 * @return string
 	 */
 	protected function getUrlFromDomain($domain)
 	{
@@ -355,10 +378,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
 	/**
 	 * Helper-method to get a proper URL from the domain @access public @param string @return string
-     *
-     * @param   string  $url  URL to obtain the domain from
-     *
-     * @return string
+	 *
+	 * @param   string  $url  URL to obtain the domain from
+	 *
+	 * @return string
 	 */
 	protected function getDomainFromUrl($url)
 	{
@@ -367,24 +390,27 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		{
 			$domain = $match[2];
 			$domain = preg_replace('/^www\./', '', $domain);
+
 			return $domain;
 		}
+
 		return false;
 	}
 
 	/**
 	 * Change the current language
-     *
-     * @param   string  $languageTag  Tag of a language
-     *
-     * @return null
+	 *
+	 * @param   string  $languageTag  Tag of a language
+	 *
+	 * @return null
 	 */
-    protected function setLanguage()
-    {
+	protected function setLanguage($languageTag)
+	{
 		JRequest::setVar('language', $languageTag);
 
-        JFactory::getLanguage()->__construct($languageTag); // @todo: Need to find a better solution for this
+		// @todo: Need to find a better solution for this calling upon the constructor
+		JFactory::getLanguage()->__construct($languageTag);
 		JFactory::getLanguage()->setLanguage($languageTag);
 		JFactory::getLanguage()->load('joomla', JPATH_SITE, $languageTag, true);
-    }
+	}
 }
