@@ -15,6 +15,7 @@ jimport('joomla.plugin.plugin');
 require_once JPATH_SITE . '/plugins/system/languagefilter/languagefilter.php';
 
 /**
+ * Class plgSystemLanguageDomains
  *
  * @package Joomla!
  * @subpackage System
@@ -28,6 +29,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	 * @access public
 	 * @param mixed $subject
 	 * @param mixed $config
+     *
 	 * @return mixed
 	 */
 	public function __construct(&$subject, $config)
@@ -46,6 +48,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 
         // Load the current language as detected from the URL
 		$currentLanguageTag = $application->input->get('language');
+        if (empty($currentLanguageTag))
+        {
+            $currentLanguageTag = JFactory::getLanguage()->getTag();
+        }
 
 		// If this is the Site-application
 		if ($application->isSite() == true)
@@ -55,9 +61,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			if ($bindings)
 			{
                 // Check whether the currently defined language is in the list of domains
-                if (!isset($bindings[$currentLanguageTag])) {
-					JFactory::getLanguage()->setLanguage($currentLanguageTag);
-					JFactory::getLanguage()->load('joomla', JPATH_SITE, $currentLanguageTag, true);
+                if (!isset($bindings[$currentLanguageTag]))
+                {
+					$this->setLanguage($currentLanguageTag);
                     return $rt;
                 }
 
@@ -75,8 +81,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 				// Make sure the current language-tag is registered as current
 				if (!empty($newLanguageTag) and $newLanguageTag != self::$default_lang)
 				{
-					JFactory::getLanguage()->setLanguage($newLanguageTag);
-					JFactory::getLanguage()->load('joomla', JPATH_SITE, $newLanguageTag, true);
+					$this->setLanguage($newLanguageTag);
 				}
 			}
 		}
@@ -87,9 +92,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	/**
 	 * Event onAfterInitialise
 	 *
-	 * @access public
-	 * @param
-	 *        	null
 	 * @return null
 	 */
 	public function onAfterInitialise()
@@ -123,16 +125,22 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		// Disable browser-detection
 		$application->setDetectBrowser(false);
 
-		// Detect the language
-		$language = JFactory::getLanguage();
-        $languageTag = $language->getTag();
+        // Detect the language
+        $languageTag = JFactory::getLanguage()->getTag();
+
+		// Detect the language again
+        if (empty($languageTag))
+        {
+		    $language = JFactory::getLanguage();
+            $languageTag = $language->getTag();
+        }
 
 		// Get the bindings
 		$bindings = $this->getBindings();
 
         // Preliminary checks
-        if (empty($bindings) || (!empty($languageTag) && !isset($bindings[$languageTag]))) {
-
+        if (empty($bindings) || (!empty($languageTag) && !isset($bindings[$languageTag])))
+        {
     		// Run the event of the parent-plugin
 	    	$rt = parent::onAfterInitialise();
 
@@ -140,9 +148,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
     		$application = JFactory::getApplication();
 	    	$application->item_associations = $this->params->get('item_associations', 1);
 		    $application->menu_associations = $this->params->get('item_associations', 1);
-		$language = JFactory::getLanguage();
-        $languageTag = $language->getTag();
-        echo $languageTag;exit;
             return;
         }
 
@@ -166,7 +171,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 					$conf = JFactory::getConfig();
 					$cookie_domain = $conf->get('config.cookie_domain', '');
 					$cookie_path = $conf->get('config.cookie_path', '/');
-					// setcookie(JApplication::getHash('language'), $languageTag, time() + 365 * 86400, $cookie_path, $cookie_domain);
 					setcookie(JApplication::getHash('language'), null, time() - 365 * 86400, $cookie_path, $cookie_domain);
 
 					// Redirect
@@ -199,14 +203,10 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		// Make sure the current language-tag is registered as current
 		if (!empty($languageTag))
 		{
-			JRequest::setVar('language', $languageTag);
-			JFactory::getLanguage()->setLanguage($languageTag);
+			$this->setLanguage($languageTag);
 
 			$component = JComponentHelper::getComponent('com_languages');
 			$component->params->set('site', $languageTag);
-
-			//self::$default_lang = $languageTag;
-			//self::$default_sef = self::$lang_codes[self::$default_lang]->sef;
 		}
 
 		// Run the event of the parent-plugin
@@ -223,9 +223,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	/**
 	 * Event onAfterRender
 	 *
-	 * @access public
-	 * @param
-	 *        	null
 	 * @return null
 	 */
 	public function onAfterRender()
@@ -297,9 +294,6 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	/**
 	 * Method to get the bindings for languages
 	 *
-	 * @access public
-	 * @param
-	 *        	null
 	 * @return null
 	 */
 	protected function getBindings()
@@ -331,8 +325,12 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		return $bindings;
 	}
 
-	/*
+	/**
 	 * Helper-method to get a proper URL from the domain @access public @param string @return string
+     *
+     * @param   string  $domain  Domain to obtain the URL from
+     *
+     * @return string
 	 */
 	protected function getUrlFromDomain($domain)
 	{
@@ -355,8 +353,12 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		return $domain;
 	}
 
-	/*
+	/**
 	 * Helper-method to get a proper URL from the domain @access public @param string @return string
+     *
+     * @param   string  $url  URL to obtain the domain from
+     *
+     * @return string
 	 */
 	protected function getDomainFromUrl($url)
 	{
@@ -369,4 +371,20 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		}
 		return false;
 	}
+
+	/**
+	 * Change the current language
+     *
+     * @param   string  $languageTag  Tag of a language
+     *
+     * @return null
+	 */
+    protected function setLanguage()
+    {
+		JRequest::setVar('language', $languageTag);
+
+        JFactory::getLanguage()->__construct($languageTag); // @todo: Need to find a better solution for this
+		JFactory::getLanguage()->setLanguage($languageTag);
+		JFactory::getLanguage()->load('joomla', JPATH_SITE, $languageTag, true);
+    }
 }
