@@ -45,7 +45,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		$rt = parent::__construct($subject, $config);
 
         // Load the current language as detected from the URL
-		$currentLanguageTag = $application->input->get('language');
+		$currentLanguageTag = JFactory::getLanguage()->getTag();
 
 		// If this is the Site-application
 		if ($application->isSite() == true)
@@ -200,6 +200,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 		if (!empty($languageTag))
 		{
 			JRequest::setVar('language', $languageTag);
+			JFactory::getLanguage()->__construct($languageTag);
 			JFactory::getLanguage()->setLanguage($languageTag);
 
 			$component = JComponentHelper::getComponent('com_languages');
