@@ -291,6 +291,18 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 				}
 			}
 
+            // Replace shortened URLs that contain /index.php/
+            if (JFactory::getConfig()->get('sef_rewrite', 0) == 0)
+            {
+                if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\//', $buffer, $matches))
+                {
+                    foreach ($matches[0] as $index => $match)
+                    {
+                        $buffer = str_replace($match, $matches[1][$index] . $domain, $buffer);
+                    }
+                }
+            }
+
 			// Replace full URLs
 			if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\//', $buffer, $matches))
 			{
