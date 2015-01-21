@@ -320,6 +320,9 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			}
 		}
 
+		//$currentLanguageTag = JFactory::getLanguage()->getTag();
+        //$buffer .= '<!-- Current language tag: ' . $currentLanguageTag . ' -->';
+
 		JResponse::setBody($buffer);
 	}
 
@@ -418,11 +421,28 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 	 */
 	protected function setLanguage($languageTag)
 	{
-		JRequest::setVar('language', $languageTag);
+        // Set the input variable
+        $app = JFactory::getApplication();
+        $app->input->set('language', $languageTag);
 
-		// @todo: Need to find a better solution for this calling upon the constructor
+		// Rerun the constructor ugly style
 		JFactory::getLanguage()->__construct($languageTag);
-		JFactory::getLanguage()->setLanguage($languageTag);
-		JFactory::getLanguage()->load('joomla', JPATH_SITE, $languageTag, true);
+
+        // Reload languages 
+        $language = JLanguage::getInstance($languageTag, false);
+		$language->load('joomla', JPATH_SITE, $languageTag, true);
+		$language->load('lib_joomla', JPATH_SITE, $languageTag, true);
+
+        // Reinject the language back into the application
+        try {
+            $app->set('language', $languageTag);
+        } catch(Exception $e) {}
+
+        $app->loadLanguage($language);
+
+        // Reset the JFactory
+        try {
+            JFactory::$language = $language;
+        } catch(Exception $e) {}
 	}
 }
