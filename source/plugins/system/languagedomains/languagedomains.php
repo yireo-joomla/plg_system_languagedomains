@@ -83,7 +83,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 				}
 
 				// Make sure the current language-tag is registered as current
-				if (!empty($newLanguageTag) and $newLanguageTag != self::$default_lang)
+				if (!empty($newLanguageTag) and $newLanguageTag != $this->default_lang)
 				{
 					$this->setLanguage($newLanguageTag);
 				}
