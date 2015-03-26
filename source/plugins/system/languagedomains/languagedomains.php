@@ -157,6 +157,20 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			return;
 		}
 
+        // Check whether to allow redirects or to leave things as they are
+        $jinput = $application->input;
+        $allowRedirect = true;
+
+        if (in_array($jinput->getCmd('format'), array('json', 'feed', 'api')))
+        {
+            $allowRedirect = false;
+        }
+
+        if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') 
+        {
+            $allowRedirect = false;
+        }
+
 		// Check for the binding of the current language
 		if (!empty($languageTag))
 		{
@@ -164,7 +178,7 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			{
 				$domain = $bindings[$languageTag];
 
-				if (stristr(JURI::current(), $domain) == false)
+				if (stristr(JURI::current(), $domain) == false && $allowRedirect)
 				{
 					// Add URL-elements to the domain
 					$domain = $this->getUrlFromDomain($domain);
