@@ -297,38 +297,53 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
 			$domain = $this->getUrlFromDomain($domain);
 
 			// Replace shortened URLs
-			if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\//', $buffer, $matches))
+			if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]+)/', $buffer, $matches))
 			{
 				foreach ($matches[0] as $index => $match)
 				{
-					$buffer = str_replace($match, $matches[1][$index] . $domain, $buffer);
+                    if ($this->allowUrlChange($match) == false)
+                    {
+                        continue;
+                    }
+
+					$buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
 				}
 			}
 
             // Replace shortened URLs that contain /index.php/
             if (JFactory::getConfig()->get('sef_rewrite', 0) == 0)
             {
-                if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\//', $buffer, $matches))
+                if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\/([^\'\"]+)/', $buffer, $matches))
                 {
                     foreach ($matches[0] as $index => $match)
                     {
-                        $buffer = str_replace($match, $matches[1][$index] . $domain, $buffer);
+                        if ($this->allowUrlChange($match) == false)
+                        {
+                            continue;
+                        }
+
+                        $buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
                     }
                 }
             }
 
 			// Replace full URLs
-			if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\//', $buffer, $matches))
+			if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)/', $buffer, $matches))
 			{
 				foreach ($matches[0] as $match)
 				{
+                    if ($this->allowUrlChange($match) == false)
+                    {
+                        continue;
+                    }
+
 					$match = preg_replace('/(\'|\")/', '', $match);
 					$workMatch = str_replace('index.php/', '', $match);
 					$matchDomain = $this->getDomainFromUrl($workMatch);
 
 					if (empty($matchDomain) || in_array($matchDomain, $bindings) || in_array('www.' . $matchDomain, $bindings))
 					{
-						$buffer = str_replace($match, $domain, $buffer);
+						$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
 					}
 				}
 			}
@@ -458,5 +473,93 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
         try {
             JFactory::$language = $language;
         } catch(Exception $e) {}
+	}
+
+	/**
+	 * Allow a specific URL to be changed by this plugin
+	 *
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	private function allowUrlChange($url)
+	{
+        // Exclude specific component-calls
+        if (preg_match('/format=(raw|json|api)/', $url))
+        {
+            return false;
+        }
+        
+        // Exclude specific JavaScript
+        if (preg_match('/\.js$/', $url))
+        {
+            return false;
+        }
+
+        // Exclude specific components
+        $exclude_components = $this->getArrayFromParam('exclude_components');
+        
+        if (!empty($exclude_components))
+        {
+            foreach($exclude_components as $exclude_component)
+            {
+                if (stristr($url, 'components/' . $exclude_component))
+                {
+                    return false;
+                }
+            }
+        }
+        
+        // Exclude specific URLs
+        $exclude_urls = $this->getArrayFromParam('exclude_urls');
+        $exclude_urls[] = '/media/jui/js/';
+        $exclude_urls[] = '/assets/js/';
+        
+        if (!empty($exclude_urls))
+        {
+            foreach($exclude_urls as $exclude_url)
+            {
+                if (stristr($url, $exclude_url))
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+	/**
+	 * Get an array from a parameter
+	 *
+	 * @param string $param
+	 *
+	 * @return array
+	 */
+	private function getArrayFromParam($param)
+	{
+		$data = $this->params->get($param);
+		$data = trim($data);
+
+		if (empty($data))
+		{
+			return array();
+		}
+
+		$data = explode(',', $data);
+
+		$newData = array();
+
+		foreach ($data as $value)
+		{
+			$value = trim($value);
+
+			if (!empty($value))
+			{
+				$newData[] = $value;
+			}
+		}
+
+		return $newData;
 	}
 }
