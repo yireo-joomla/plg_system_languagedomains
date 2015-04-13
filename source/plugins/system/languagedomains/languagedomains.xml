@@ -53,6 +53,15 @@
                 <field name="exclude_urls" type="textarea" rows="20"
                     label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_LABEL"
                     description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_DESC" />
+				<field name="debug" type="radio"
+					description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_DEBUG_DESC"
+					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_DEBUG_LABEL"
+					default="0"
+					class="btn-group btn-group-yesno"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
 	        </fieldset>
         </fields>
     </config>
