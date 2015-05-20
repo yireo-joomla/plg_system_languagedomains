@@ -588,6 +588,12 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             return false;
         }
 
+        // Do not rewrite non-SEF URLs
+        if (stristr($url, 'index.php?option='))
+        {
+            return false;
+        }
+
         // Exclude specific components
         $exclude_components = $this->getArrayFromParam('exclude_components');
         
@@ -596,6 +602,11 @@ class plgSystemLanguageDomains extends plgSystemLanguageFilter
             foreach($exclude_components as $exclude_component)
             {
                 if (stristr($url, 'components/' . $exclude_component))
+                {
+                    return false;
+                }
+
+                if (stristr($url, 'option=' . $exclude_component . '&'))
                 {
                     return false;
                 }
