@@ -200,6 +200,8 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 		{
 			$this->redirectLanguageToDomain($languageTag);
 		}
+
+		$this->redirectDomainToPrimaryDomain($languageTag);
 	}
 
 	/**
@@ -254,61 +256,100 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 			$domain = $this->getUrlFromDomain($domain);
 
 			// Replace shortened URLs
-			if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]?)/', $buffer, $matches))
-			{
-				foreach ($matches[0] as $index => $match)
-				{
-					$this->debug('Match shortened URL: ' . $match);
-
-					if ($this->allowUrlChange($match) == false)
-					{
-						continue;
-					}
-
-					$buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
-				}
-			}
+			$this->rewriteShortUrls($buffer, $languageSef, $domain);
 
 			// Replace shortened URLs that contain /index.php/
-			if (JFactory::getConfig()->get('sef_rewrite', 0) == 0)
-			{
-				if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\/([^\'\"]?)/', $buffer, $matches))
-				{
-					foreach ($matches[0] as $index => $match)
-					{
-						$this->debug('Match shortened URL with /index.php/: ' . $match);
-
-						if ($this->allowUrlChange($match) == true)
-						{
-							$buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
-						}
-					}
-				}
-			}
+			$this->rewriteShortUrlsWithIndex($buffer, $languageSef, $domain);
 
 			// Replace full URLs
-			if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)/', $buffer, $matches))
+			$this->rewriteFullUrls($buffer, $languageSef, $domain);
+		}
+
+		JResponse::setBody($buffer);
+	}
+
+	/**
+	 * Replace all short URLs with a language X with a domain Y
+	 *
+	 * @param $buffer
+	 * @param $languageSef
+	 * @param $domain
+	 */
+	protected function rewriteShortUrls(&$buffer, $languageSef, $domain)
+	{
+		if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]?)/', $buffer, $matches))
+		{
+			foreach ($matches[0] as $index => $match)
+			{
+				$this->debug('Match shortened URL: ' . $match);
+
+				if ($this->allowUrlChange($match) == false)
+				{
+					continue;
+				}
+
+				$buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
+			}
+		}
+	}
+
+	/**
+	 * Replace all short URLs containing /index.php/ with a language X with a domain Y
+	 *
+	 * @param $buffer
+	 * @param $languageSef
+	 * @param $domain
+	 */
+	protected function rewriteShortUrlsWithIndex(&$buffer, $languageSef, $domain)
+	{
+		if (JFactory::getConfig()->get('sef_rewrite', 0) == 0)
+		{
+			if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\/([^\'\"]?)/', $buffer, $matches))
 			{
 				foreach ($matches[0] as $index => $match)
 				{
-					$this->debug('Match full URL: ' . $match);
+					$this->debug('Match shortened URL with /index.php/: ' . $match);
 
 					if ($this->allowUrlChange($match) == true)
 					{
-						$match = preg_replace('/(\'|\")/', '', $match);
-						$workMatch = str_replace('index.php/', '', $match);
-						$matchDomain = $this->getDomainFromUrl($workMatch);
-
-						if (empty($matchDomain) || in_array($matchDomain, $bindings['domains']) || in_array('www.' . $matchDomain, $bindings['domains']))
-						{
-							$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
-						}
+						$buffer = str_replace($match, $matches[1][$index] . $domain . $matches[3][$index], $buffer);
 					}
 				}
 			}
 		}
+	}
 
-		JResponse::setBody($buffer);
+	/**
+	 * Replace all full URLs with a language X with a domain Y
+	 *
+	 * @param $buffer
+	 * @param $languageSef
+	 * @param $domain
+	 */
+	protected function rewriteFullUrls(&$buffer, $languageSef, $domain)
+	{
+		$bindings = $this->getBindings();
+
+		// Replace full URLs
+		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)/', $buffer, $matches))
+		{
+			foreach ($matches[0] as $index => $match)
+			{
+				$this->debug('Match full URL: ' . $match);
+
+				if ($this->allowUrlChange($match) == true)
+				{
+					$match = preg_replace('/(\'|\")/', '', $match);
+					$workMatch = str_replace('index.php/', '', $match);
+					$matchDomain = $this->getDomainFromUrl($workMatch);
+
+					if (empty($matchDomain) || in_array($matchDomain, $bindings['domains']) || in_array('www.' . $matchDomain, $bindings['domains']))
+					{
+						$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -456,6 +497,23 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 		return true;
 	}
 
+	protected function redirectDomainToPrimaryDomain($languageTag)
+	{
+		$primaryDomain = $this->getDomainByLanguageTag($languageTag);
+		$currentDomain = JURI::getInstance()->getHost();
+
+		if (stristr(JURI::current(), '/' . $primaryDomain) == false)
+		{
+			// Replace the current domain with the new domain
+			$currentUrl = JURI::current();
+			$newUrl = str_replace($currentDomain, $primaryDomain, $currentUrl);
+
+			// Redirect
+			$this->app->redirect($newUrl);
+			$this->app->close();
+		}
+	}
+
 	/**
 	 * Return the domain by language tag
 	 *
@@ -470,6 +528,23 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 		if (array_key_exists($languageTag, $bindings))
 		{
 			return $bindings[$languageTag]['primary'];
+		}
+	}
+
+	/**
+	 * Return the domain by language tag
+	 *
+	 * @param $languageTag
+	 *
+	 * @return mixed
+	 */
+	protected function getDomainsByLanguageTag($languageTag)
+	{
+		$bindings = $this->getBindings();
+
+		if (array_key_exists($languageTag, $bindings))
+		{
+			return $bindings[$languageTag]['domains'];
 		}
 	}
 
