@@ -47,12 +47,12 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		$rt = parent::__construct($subject, $config);
 
-		// Detect the current language
-		$currentLanguageTag = $this->detectLanguage();
-
 		// If this is the Site-application
 		if ($this->app->isSite() == true)
 		{
+			// Detect the current language
+			$currentLanguageTag = $this->detectLanguage();
+
 			// Get the bindings
 			$bindings = $this->getBindings();
 
@@ -191,6 +191,12 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	{
 		// Run the event of the parent-plugin
 		parent::onAfterRoute();
+
+		// If this is the Administrator-application, or if debugging is set, do nothing
+		if ($this->app->isSite() == false)
+		{
+			return;
+		}
 
 		// Detect the current language
 		$languageTag = $this->detectLanguage();
