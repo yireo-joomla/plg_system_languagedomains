@@ -7,7 +7,7 @@
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.20</version>
+    <version>1.0.21</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
@@ -24,7 +24,7 @@
     <config>
 	    <fields name="params">
             <fieldset name="basic">
-                <field name="bindings" type="textarea" rows="20"
+                <field name="bindings" type="textarea" rows="20" cols="200"
                     label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL"
                     description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC" />
 				<field name="item_associations" type="radio"
@@ -76,6 +76,6 @@
     </config>
 
     <updateservers>
-        <server type="extension" priority="1" name="plg_system_languagedomains">http://www.yireo.com/updates/plg_system_languagedomains.xml</server>
+        <server type="extension" priority="1" name="plg_system_languagedomains">https://www.yireo.com/updates/plg_system_languagedomains.xml</server>
     </updateservers>
 </extension>
