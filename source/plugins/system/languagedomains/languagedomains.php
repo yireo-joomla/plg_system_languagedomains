@@ -200,6 +200,12 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		// Detect the current language
 		$languageTag = $this->detectLanguage();
+
+        if (empty($languageTag))
+        {
+            $languageTag = JComponentHelper::getParams('com_languages')->get('site', 'en-GB');
+        }
+
 		$this->debug('Current language tag: ' . $languageTag);
 
 		if (empty($languageTag))
