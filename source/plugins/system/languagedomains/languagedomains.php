@@ -511,6 +511,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 	protected function redirectDomainToPrimaryDomain($languageTag)
 	{
+		if ($this->params->get('enforce_domains', 0) == 0)
+        {
+            return false;
+        }
+
         $bindings = $this->getBindings();
 		$primaryDomain = $this->getDomainByLanguageTag($languageTag);
 		$currentDomain = JURI::getInstance()->getHost();
