@@ -56,7 +56,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 			// Get the bindings
 			$bindings = $this->getBindings();
 
-			if ($bindings)
+			if (!empty($bindings))
 			{
 				// Check whether the currently defined language is in the list of domains
 				if (!array_key_exists($currentLanguageTag, $bindings))
@@ -342,6 +342,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	{
 		$bindings = $this->getBindings();
 
+        if (empty($bindings))
+        {
+            return false;
+        }
+
 		// Replace full URLs
 		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)/', $buffer, $matches))
 		{
@@ -390,22 +395,31 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 		foreach ($bindingsArray as $index => $binding)
 		{
+            $binding = trim($binding);
+            
+            if (empty($binding))
+            {
+                continue;
+            }
+
 			$binding = explode('=', $binding);
 
-			if (isset($binding[0]) && isset($binding[1]))
+			if (!isset($binding[0]) || !isset($binding[1]))
 			{
-				$languageCode = trim($binding[0]);
-				$languageCode = str_replace('_', '-', $languageCode);
+                continue;
+            }
 
-				$domainString = trim($binding[1]);
-				$domainParts = explode('|', $domainString);
-				$domain = array_shift($domainParts);
+			$languageCode = trim($binding[0]);
+			$languageCode = str_replace('_', '-', $languageCode);
 
-				$bindings[$languageCode] = array(
-					'primary' => $domain,
-					'domains' => $domainParts,
-				);
-			}
+			$domainString = trim($binding[1]);
+			$domainParts = explode('|', $domainString);
+			$domain = array_shift($domainParts);
+
+			$bindings[$languageCode] = array(
+				'primary' => $domain,
+				'domains' => $domainParts,
+			);
 		}
 
 		arsort($bindings);
@@ -520,6 +534,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 		$primaryDomain = $this->getDomainByLanguageTag($languageTag);
 		$currentDomain = JURI::getInstance()->getHost();
 
+        if (empty($bindings))
+        {
+            return false;
+        }
+
         foreach ($bindings as $binding)
         {
             if (in_array($currentDomain, $binding['domains']))
@@ -551,6 +570,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	{
 		$bindings = $this->getBindings();
 
+        if (empty($bindings))
+        {
+            return false;
+        }
+
 		if (array_key_exists($languageTag, $bindings))
 		{
 			return $bindings[$languageTag]['primary'];
@@ -567,6 +591,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	protected function getDomainsByLanguageTag($languageTag)
 	{
 		$bindings = $this->getBindings();
+
+        if (empty($bindings))
+        {
+            return false;
+        }
 
 		if (array_key_exists($languageTag, $bindings))
 		{
