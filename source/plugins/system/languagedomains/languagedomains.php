@@ -525,6 +525,14 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 	protected function redirectDomainToPrimaryDomain($languageTag)
 	{
+		// Check whether to allow redirects or to leave things as they are
+		$allowRedirect = $this->allowRedirect();
+
+		if ($allowRedirect == false)
+		{
+			return false;
+		}
+
 		if ($this->params->get('enforce_domains', 0) == 0)
         {
             return false;
@@ -876,12 +884,13 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 				include_once $vmConfigFile;
 
 				VmConfig::loadConfig();
-				VmConfig::$defaultLang = 'en_gb';
 			}
 		}
-		else
-		{
-			VmConfig::$defaultLang = 'en_gb';
+
+		if (class_exists('VmConfig'))
+        {
+            VmConfig::$vmlang = false;
+            VmConfig::setdbLanguageTag();
 		}
 	}
 }
