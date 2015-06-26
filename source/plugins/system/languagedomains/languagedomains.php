@@ -360,9 +360,14 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 					$workMatch = str_replace('index.php/', '', $match);
 					$matchDomain = $this->getDomainFromUrl($workMatch);
 
-					if (empty($matchDomain) || in_array($matchDomain, $bindings['domains']) || in_array('www.' . $matchDomain, $bindings['domains']))
+					$domainBindings = $bindings['domains'];
+
+					if (is_array($domainBindings))
 					{
-						$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
+						if (empty($matchDomain) || in_array($matchDomain, $domainBindings) || in_array('www.' . $matchDomain, $domainBindings))
+						{
+							$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
+						}
 					}
 				}
 			}
@@ -415,6 +420,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 			$domainString = trim($binding[1]);
 			$domainParts = explode('|', $domainString);
 			$domain = array_shift($domainParts);
+
+			if (!is_array($domainParts))
+			{
+				$domainParts = array();
+			}
 
 			$bindings[$languageCode] = array(
 				'primary' => $domain,
