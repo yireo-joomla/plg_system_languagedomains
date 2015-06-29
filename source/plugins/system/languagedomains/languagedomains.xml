@@ -7,7 +7,7 @@
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.23</version>
+    <version>1.0.24</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
@@ -46,8 +46,8 @@
 					<option value="1">JYES</option>
 				</field>
 				<field name="enforce_domains" type="radio"
-					description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ENFORCE_DOMAINS_DESC"
-					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ENFORCE_DOMAINS_LABEL"
+					description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_DESC"
+					label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_LABEL"
 					default="0"
 					class="btn-group btn-group-yesno"
 				>
@@ -63,8 +63,8 @@
                     label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_LABEL"
                     description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_DESC" />
 				<field name="debug" type="radio"
-					description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_DEBUG_DESC"
-					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_DEBUG_LABEL"
+					description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_DESC"
+					label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_LABEL"
 					default="0"
 					class="btn-group btn-group-yesno"
 				>
