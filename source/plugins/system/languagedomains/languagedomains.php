@@ -267,14 +267,16 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 			$domain = $bindings[$languageCode]['primary'];
 			$domain = $this->getUrlFromDomain($domain);
 
+            $secondaryDomains = $bindings[$languageCode]['domains'];
+
 			// Replace shortened URLs
-			$this->rewriteShortUrls($buffer, $languageSef, $domain);
+			$this->rewriteShortUrls($buffer, $languageSef, $domain, $secondaryDomains);
 
 			// Replace shortened URLs that contain /index.php/
-			$this->rewriteShortUrlsWithIndex($buffer, $languageSef, $domain);
+			$this->rewriteShortUrlsWithIndex($buffer, $languageSef, $domain, $secondaryDomains);
 
 			// Replace full URLs
-			$this->rewriteFullUrls($buffer, $languageSef, $domain);
+			$this->rewriteFullUrls($buffer, $languageSef, $domain, $secondaryDomains);
 		}
 
 		JResponse::setBody($buffer);
@@ -287,7 +289,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	 * @param $languageSef
 	 * @param $domain
 	 */
-	protected function rewriteShortUrls(&$buffer, $languageSef, $domain)
+	protected function rewriteShortUrls(&$buffer, $languageSef, $domain, $secondaryDomains)
 	{
 		if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]?)/', $buffer, $matches))
 		{
@@ -312,7 +314,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	 * @param $languageSef
 	 * @param $domain
 	 */
-	protected function rewriteShortUrlsWithIndex(&$buffer, $languageSef, $domain)
+	protected function rewriteShortUrlsWithIndex(&$buffer, $languageSef, $domain, $secondaryDomains)
 	{
 		if (JFactory::getConfig()->get('sef_rewrite', 0) == 0)
 		{
@@ -338,7 +340,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	 * @param $languageSef
 	 * @param $domain
 	 */
-	protected function rewriteFullUrls(&$buffer, $languageSef, $domain)
+	protected function rewriteFullUrls(&$buffer, $languageSef, $domain, $secondaryDomains)
 	{
 		$bindings = $this->getBindings();
 
@@ -348,7 +350,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
         }
 
 		// Replace full URLs
-		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)/', $buffer, $matches))
+		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]?)/', $buffer, $matches))
 		{
 			foreach ($matches[0] as $index => $match)
 			{
@@ -360,15 +362,17 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 					$workMatch = str_replace('index.php/', '', $match);
 					$matchDomain = $this->getDomainFromUrl($workMatch);
 
-					$domainBindings = $bindings['domains'];
-
-					if (is_array($domainBindings))
-					{
-						if (empty($matchDomain) || in_array($matchDomain, $domainBindings) || in_array('www.' . $matchDomain, $domainBindings))
-						{
-							$buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
-						}
-					}
+                    if (is_array($secondaryDomains))
+                    {
+                        if (empty($matchDomain))
+                        {
+                            $buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
+                        }
+                        elseif (!in_array($matchDomain, $secondaryDomains) && !in_array('www.' . $matchDomain, $secondaryDomains))
+                        {
+                            $buffer = str_replace($match, $domain . $matches[3][$index], $buffer);
+                        }
+                    }
 				}
 			}
 		}
