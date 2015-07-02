@@ -342,7 +342,7 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	{
 		$bindings = $this->getBindings();
 
-        if (empty($bindings))
+        if (empty($bindings) || empty($bindings['domains']))
         {
             return false;
         }
@@ -416,6 +416,11 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 
 			$languageCode = trim($binding[0]);
 			$languageCode = str_replace('_', '-', $languageCode);
+
+            if (preg_match('/([^a-zA-Z\-]+)/', $languageCode))
+            {
+                continue;
+            }
 
 			$domainString = trim($binding[1]);
 			$domainParts = explode('|', $domainString);
@@ -676,6 +681,9 @@ class PlgSystemLanguageDomains extends plgSystemLanguageFilter
 	 */
 	protected function setLanguage($languageTag)
 	{
+        // Set the current language
+        $this->current_lang = $languageTag;
+
 		// Set the input variable
 		$this->app->input->set('language', $languageTag);
 		$this->app->input->set('lang', $languageTag);
