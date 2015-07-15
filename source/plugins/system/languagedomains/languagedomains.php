@@ -202,12 +202,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
         // If this language is not included in this plugins configuration, set it as current
         if (!$this->isLanguageBound($languageTag))
         {
-		    $this->setLanguage($languageTag);
+		    $this->setLanguage($languageTag, true);
         }
         // If this language is included in this plugins configuration, override the language again
         else
         {
-		    $this->setLanguage($this->currentLanguageTag);
+		    $this->setLanguage($this->currentLanguageTag, true);
         }
 
 		$this->debug('Current language tag: ' . $languageTag);
@@ -727,7 +727,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 *
 	 * @return null
 	 */
-	protected function setLanguage($languageTag)
+	protected function setLanguage($languageTag, $fullInit = false)
 	{
         $this->currentLanguageTag = $languageTag;
         $this->current_lang = $languageTag;
@@ -742,7 +742,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		// Reload languages
 		$language = JLanguage::getInstance($languageTag, false);
-		$language->load('tpl_' . $this->app->getTemplate(), JPATH_SITE, $languageTag, true);
+
+        if ($fullInit == true)
+        {
+		    $language->load('tpl_' . $this->app->getTemplate(), JPATH_SITE, $languageTag, true);
+        }
+
 		$language->load('joomla', JPATH_SITE, $languageTag, true);
 		$language->load('lib_joomla', JPATH_SITE, $languageTag, true);
 
