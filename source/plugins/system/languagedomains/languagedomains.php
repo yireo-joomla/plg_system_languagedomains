@@ -50,6 +50,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$rt = parent::__construct($subject, $config);
 
+		$this->app = JFactory::getApplication();
+
 		// If this is the Site-application
 		if ($this->app->isSite() == true)
 		{
@@ -195,7 +197,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	public function onAfterRoute()
 	{
 		// Run the event of the parent-plugin
-		parent::onAfterRoute();
+		if (method_exists(get_parent_class(), 'onAfterRoute'))
+		{
+			parent::onAfterRoute();
+		}
 
 		// Remove the cookie if it exists
 		$this->cleanLanguageCookie();
@@ -321,9 +326,9 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	/**
 	 * Replace all short URLs with a language X with a domain Y
 	 *
-	 * @param $buffer string
-	 * @param $languageSef string
-	 * @param $primaryUrl string
+	 * @param $buffer           string
+	 * @param $languageSef      string
+	 * @param $primaryUrl       string
 	 * @param $secondaryDomains array
 	 *
 	 * @return void
@@ -341,7 +346,14 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 					continue;
 				}
 
-				$buffer = str_replace($match, $matches[1][$index] . $primaryUrl . $matches[3][$index], $buffer);
+				if ($this->doesSefMatchCurrentLanguage($languageSef))
+				{
+					$buffer = str_replace($match, $matches[1][$index] . $matches[3][$index], $buffer);
+				}
+				else
+				{
+					$buffer = str_replace($match, $matches[1][$index] . $primaryUrl . $matches[3][$index], $buffer);
+				}
 			}
 		}
 	}
@@ -377,10 +389,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	/**
 	 * Replace all full URLs with a language X with a domain Y
 	 *
-	 * @param $buffer string
-	 * @param $languageSef string
-	 * @param $primaryUrl string
-	 * @param $primaryDomain string
+	 * @param $buffer           string
+	 * @param $languageSef      string
+	 * @param $primaryUrl       string
+	 * @param $primaryDomain    string
 	 * @param $secondaryDomains array
 	 *
 	 * @return bool
@@ -807,7 +819,14 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function cleanLanguageCookie()
 	{
-		$languageHash = JApplicationHelper::getHash('language');
+		if (method_exists('JApplicationHelper', 'getHash'))
+		{
+			$languageHash = JApplicationHelper::getHash('language');
+		}
+		else
+		{
+			$languageHash = JApplication::getHash('language');
+		}
 
 		if (!isset($_COOKIE[$languageHash]))
 		{
@@ -855,8 +874,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	/**
 	 * Change the current language
 	 *
-	 * @param string $languageTag  Tag of a language
-	 * @param bool $fullInit  Fully initialize the language or not
+	 * @param string $languageTag Tag of a language
+	 * @param bool   $fullInit    Fully initialize the language or not
 	 *
 	 * @return null
 	 */
@@ -864,7 +883,16 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	{
 		$this->currentLanguageTag = $languageTag;
 		$this->current_lang = $languageTag;
-		$this->default_lang = $languageTag;
+
+		$prop = new ReflectionProperty($this, 'default_lang');
+		if ($prop->isStatic())
+		{
+			self::$default_lang = $languageTag;
+		}
+		else
+		{
+			$this->default_lang = $languageTag;
+		}
 
 		// Set the input variable
 		$this->app->input->set('language', $languageTag);
@@ -895,7 +923,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			return;
 		}
 
-		$this->app->loadLanguage($language);
+		if (method_exists($this->app, 'loadLanguage'))
+		{
+			$this->app->loadLanguage($language);
+		}
 
 		// Reset the JFactory
 		try
@@ -1003,6 +1034,32 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check whether a certain SEF string matches the current language
+	 *
+	 * @param string $sef
+	 *
+	 * @return bool
+	 */
+	private function doesSefMatchCurrentLanguage($sef)
+	{
+		$languages = JLanguageHelper::getLanguages('sef');
+		if (!isset($languages[$sef]))
+		{
+			return false;
+		}
+
+		$language = $languages[$sef];
+		$currentLanguage = JFactory::getLanguage();
+
+		if ($currentLanguage->getTag() == $language->lang_code)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
