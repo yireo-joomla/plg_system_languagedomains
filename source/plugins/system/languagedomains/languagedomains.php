@@ -288,11 +288,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			{
 				continue;
 			}
-
+			
 			$primaryDomain = $bindings[$languageCode]['primary'];
 			$primaryUrl = $this->getUrlFromDomain($primaryDomain);
-
 			$secondaryDomains = $bindings[$languageCode]['domains'];
+
+            $this->debug('Inspecting language: ' . $languageSef . ' / ' . $primaryUrl);
 
 			// Replace shortened URLs
 			$this->rewriteShortUrls($buffer, $languageSef, $primaryUrl, $secondaryDomains);
@@ -335,7 +336,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteShortUrls(&$buffer, $languageSef, $primaryUrl, $secondaryDomains)
 	{
-		if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]+)([\'"]?)/', $buffer, $matches))
+		if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]*)([\'\"]{1})/', $buffer, $matches))
 		{
 			foreach ($matches[0] as $index => $match)
 			{
@@ -371,7 +372,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		if ($config->get('sef_rewrite', 0) == 0)
 		{
-			if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\/([^\'\"]+)([\'"]?)/', $buffer, $matches))
+			if (preg_match_all('/([\'\"]{1})\/index.php\/(' . $languageSef . ')\/([^\'\"]*)([\'\"]{1})/', $buffer, $matches))
 			{
 				foreach ($matches[0] as $index => $match)
 				{
@@ -408,7 +409,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		}
 
 		// Scan for full URLs
-		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]+)([\'"]?)/', $buffer, $matches))
+		if (preg_match_all('/(http|https)\:\/\/([a-zA-Z0-9\-\/\.]{5,40})\/' . $languageSef . '\/([^\'\"]*)([\'\"]{1})/', $buffer, $matches))
 		{
 			foreach ($matches[0] as $index => $match)
 			{
