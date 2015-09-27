@@ -38,6 +38,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected $currentLanguageTag;
 
+    /**
+     * @var array
+     */
+    protected $debugMessages;
+
 	/**
 	 * Constructor
 	 *
@@ -305,6 +310,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			$this->rewriteFullUrls($buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains);
 		}
 
+        if (!empty($this->debugMessages))
+        {
+            $debugMessages = implode('', $this->debugMessages);
+            $buffer = str_replace('</body>', '<script>' . $debugMessages . '</script></body>', $buffer);
+        }
+
 		JResponse::setBody($buffer);
 	}
 
@@ -340,6 +351,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		{
 			foreach ($matches[0] as $index => $match)
 			{
+				$match = preg_replace('/(\'|\")/', '', $match);
+
 				$this->debug('Match shortened URL: ' . $match);
 
 				if ($this->allowUrlChange($match) == false)
@@ -349,11 +362,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 				if ($this->doesSefMatchCurrentLanguage($languageSef))
 				{
-					$buffer = str_replace($match, $matches[1][$index] . $matches[3][$index] . $matches[4][$index], $buffer);
+					$buffer = str_replace($matches[0][$index], $matches[1][$index] . $matches[3][$index] . $matches[4][$index], $buffer);
 				}
 				else
 				{
-					$buffer = str_replace($match, $matches[1][$index] . $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
+					$buffer = str_replace($matches[0][$index], $matches[1][$index] . $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
 				}
 			}
 		}
@@ -376,11 +389,13 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			{
 				foreach ($matches[0] as $index => $match)
 				{
+					$match = preg_replace('/(\'|\")/', '', $match);
+
 					$this->debug('Match shortened URL with /index.php/: ' . $match);
 
 					if ($this->allowUrlChange($match) == true)
 					{
-						$buffer = str_replace($match, $matches[1][$index] . $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
+						$buffer = str_replace($matches[0][$index], $matches[1][$index] . $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
 					}
 				}
 			}
@@ -430,7 +445,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 					// Replace the domain name
 					if (!in_array($matchedDomain, $secondaryDomains) && !in_array('www.' . $matchedDomain, $secondaryDomains))
 					{
-						$buffer = str_replace($match, $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
+						$buffer = str_replace($matches[0][$index], $primaryUrl . $matches[3][$index] . $matches[4][$index], $buffer);
 						continue;
 					}
 
@@ -444,7 +459,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 							$url = str_replace($primaryDomain, $matchedDomain, $url);
 						}
 
-						$buffer = str_replace($match, $url . $matches[3][$index] . $matches[4][$index], $buffer);
+						$buffer = str_replace($matches[0][$index], $url . $matches[3][$index] . $matches[4][$index], $buffer);
 						continue;
 					}
 				}
@@ -1126,7 +1141,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		if ($debug)
 		{
-			echo '<script>console.log("LANGUAGE DOMAINS: ' . addslashes($message) . '");</script>';
+			$this->debugMessages[] = 'console.log("LANGUAGE DOMAINS: ' . addslashes($message) . '");';
 		}
 
 		return true;
