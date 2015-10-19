@@ -28,7 +28,22 @@ class JLanguageMultilang
 	 */
 	public static function isEnabled()
 	{
-        return true;
+        if (!defined('FALANG_J30') || FALANG_J30 == false)
+        {
+            return true;
+        }
+        elseif (defined('FALANG_J30'))
+        {
+            $menu = JFactory::getApplication()->getMenu();
+            $active = $menu->getActive();
+            $default = $menu->getDefault();
+
+            if ($active->id == $default->id)
+            {
+                return false;
+            }
+        }
+
 		// Flag to avoid doing multiple database queries.
 		static $tested = false;
 
