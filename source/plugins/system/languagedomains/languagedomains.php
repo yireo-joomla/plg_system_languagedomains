@@ -36,12 +36,17 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	/**
 	 * @var string
 	 */
+	protected $originalDefaultLanguage;
+
+	/**
+	 * @var string
+	 */
 	protected $currentLanguageTag;
 
-    /**
-     * @var array
-     */
-    protected $debugMessages;
+	/**
+	 * @var array
+	 */
+	protected $debugMessages;
 
 	/**
 	 * Constructor
@@ -55,6 +60,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$rt = parent::__construct($subject, $config);
 
+		$this->originalDefaultLanguage = JComponentHelper::getParams('com_languages')
+			->get('site');
 		$this->app = JFactory::getApplication();
 
 		// If this is the Site-application
@@ -144,7 +151,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		if (empty($bindings) || (!empty($languageTag) && !array_key_exists($languageTag, $bindings)))
 		{
 			// Run the event of the parent-plugin
-			parent::onAfterInitialise();
+			if ($this->isFalangDatabaseDriver() == false)
+			{
+				parent::onAfterInitialise();
+			}
 
 			// Re-enable item-associations
 			$this->app->item_associations = $this->params->get('item_associations', 1);
@@ -187,7 +197,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		}
 
 		// Run the event of the parent-plugin
-		parent::onAfterInitialise();
+		if ($this->isFalangDatabaseDriver() == false)
+		{
+			parent::onAfterInitialise();
+		}
 
 		// Re-enable item-associations
 		$this->app->item_associations = $this->params->get('item_associations', 1);
@@ -293,12 +306,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			{
 				continue;
 			}
-			
+
 			$primaryDomain = $bindings[$languageCode]['primary'];
 			$primaryUrl = $this->getUrlFromDomain($primaryDomain);
 			$secondaryDomains = $bindings[$languageCode]['domains'];
 
-            $this->debug('Inspecting language: ' . $languageSef . ' / ' . $primaryUrl);
+			$this->debug('Inspecting language: ' . $languageSef . ' / ' . $primaryUrl);
 
 			// Replace shortened URLs
 			$this->rewriteShortUrls($buffer, $languageSef, $primaryUrl, $secondaryDomains);
@@ -308,13 +321,16 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 			// Replace full URLs
 			$this->rewriteFullUrls($buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains);
+
+			// Replace full SEF URLs
+			$this->rewriteFullSefUrls($buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains);
 		}
 
-        if (!empty($this->debugMessages))
-        {
-            $debugMessages = implode('', $this->debugMessages);
-            $buffer = str_replace('</body>', '<script>' . $debugMessages . '</script></body>', $buffer);
-        }
+		if (!empty($this->debugMessages))
+		{
+			$debugMessages = implode('', $this->debugMessages);
+			$buffer = str_replace('</body>', '<script>' . $debugMessages . '</script></body>', $buffer);
+		}
 
 		JResponse::setBody($buffer);
 	}
@@ -329,10 +345,13 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function buildRule(&$router, &$uri)
 	{
-		// Make sure to append the language prefix to all URLs, so we can properly parse the HTML using onAfterRender()
-		$this->params->set('remove_default_prefix', 0);
+		if ($this->isFalangDatabaseDriver() == false)
+		{
+			// Make sure to append the language prefix to all URLs, so we can properly parse the HTML using onAfterRender()
+			$this->params->set('remove_default_prefix', 0);
 
-		parent::buildRule($router, $uri);
+			parent::buildRule($router, $uri);
+		}
 	}
 
 	/**
@@ -462,6 +481,57 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 						$buffer = str_replace($matches[0][$index], $url . $matches[3][$index] . $matches[4][$index], $buffer);
 						continue;
 					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Replace all full SEF URLs with a language X with a domain Y
+	 *
+	 * @param $buffer           string
+	 * @param $languageSef      string
+	 * @param $primaryUrl       string
+	 * @param $primaryDomain    string
+	 * @param $secondaryDomains array
+	 *
+	 * @return bool
+	 */
+	protected function rewriteFullSefUrls(&$buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains)
+	{
+		$bindings = $this->getBindings();
+		$allDomains = $this->getAllDomains();
+
+		if (empty($bindings))
+		{
+			return false;
+		}
+
+		// Scan for full URLs
+		if (preg_match_all('/([^\'\"]+)lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
+		{
+			foreach ($matches[1] as $index => $match)
+			{
+				$match = preg_replace('/\?$/', '', $match);
+				$match = preg_replace('/^\//', '', $match);
+
+				// Strip the URL from all domains that we know of
+				$match = preg_replace('/^(http|https):\/\/(' . implode('|', $allDomains) . ')/', '', $match);
+
+				// Skip URLs with an unknown domain
+				if (preg_match('/^(http|https):\/\//', $match))
+				{
+					continue;
+				}
+
+				$this->debug('Match full URL: ' . $match . ' [' . $languageSef . ']');
+
+				if ($this->allowUrlChange($match) == true)
+				{
+					$replacement = $primaryUrl . $match . $matches[2][$index];
+					$buffer = str_replace($matches[0][$index], $replacement, $buffer);
 				}
 			}
 		}
@@ -901,6 +971,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		$this->current_lang = $languageTag;
 
 		$prop = new ReflectionProperty($this, 'default_lang');
+
 		if ($prop->isStatic())
 		{
 			self::$default_lang = $languageTag;
@@ -943,6 +1014,14 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		{
 			$this->app->loadLanguage($language);
 		}
+
+		// Falang override
+		$registry = JFactory::getConfig();
+		$registry->set('config.defaultlang', $this->originalDefaultLanguage);
+
+		// Falang override
+		JComponentHelper::getParams('com_languages')
+			->set('site', $this->originalDefaultLanguage);
 
 		// Reset the JFactory
 		try
@@ -1208,5 +1287,20 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			require_once JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/associations.php';
 			require_once JPATH_SITE . '/plugins/system/languagedomains/rewrite-32/multilang.php';
 		}
+	}
+
+	/**
+	 * Method to detect whether Falang is active or not
+	 */
+	private function isFalangDatabaseDriver()
+	{
+		$db = JFactory::getDBO();
+
+		if ($db instanceof JFalangDatabase)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
