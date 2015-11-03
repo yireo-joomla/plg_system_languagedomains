@@ -2,17 +2,18 @@
 <extension version="2.5" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_LANGUAGEDOMAINS</name>
     <author>Yireo</author>
-    <creationDate>October 2015</creationDate>
-	<copyright>Copyright 2015 Yireo.com. All rights reserved.</copyright>
+    <creationDate>November 2015</creationDate>
+    <copyright>Copyright 2015 Yireo.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.38</version>
+    <version>1.0.40</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
         <folder>rewrite-32</folder>
         <filename>index.html</filename>
+        <filename>helper.php</filename>
         <filename plugin="languagedomains">languagedomains.php</filename>
     </files>
 
@@ -22,60 +23,62 @@
     </languages>
 
     <config>
-	    <fields name="params">
+        <fields name="params">
             <fieldset name="basic">
                 <field name="bindings" type="textarea" rows="20" cols="200"
-                    label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL"
-                    description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC" />
-				<field name="item_associations" type="radio"
-                    description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_DESC"
-					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_LABEL"
-					default="1"
-					class="btn-group btn-group-yesno"
-				>
-					<option value="0">JNO</option>
-					<option value="1">JYES</option>
-				</field>
-				<field name="alternate_meta" type="radio"
-					description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_DESC"
-					label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_LABEL"
-					default="0"
-					class="btn-group btn-group-yesno"
-				>
-					<option value="0">JNO</option>
-					<option value="1">JYES</option>
-				</field>
-				<field name="enforce_domains" type="radio"
-					description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_DESC"
-					label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_LABEL"
-					default="0"
-					class="btn-group btn-group-yesno"
-				>
-					<option value="0">JNO</option>
-					<option value="1">JYES</option>
-				</field>
+                       label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_LABEL"
+                       description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_BINDINGS_DESC"/>
+                <field name="item_associations" type="radio"
+                       description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_DESC"
+                       label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ITEM_ASSOCIATIONS_LABEL"
+                       default="1"
+                       class="btn-group btn-group-yesno"
+                        >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="alternate_meta" type="radio"
+                       description="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_DESC"
+                       label="PLG_SYSTEM_LANGUAGEFILTER_FIELD_ALTERNATE_META_LABEL"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                        >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="enforce_domains" type="radio"
+                       description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_DESC"
+                       label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_ENFORCE_DOMAINS_LABEL"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                        >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
             </fieldset>
             <fieldset name="advanced">
                 <field name="exclude_components" type="textarea" rows="20"
-                    label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_COMPONENTS_LABEL"
-                    description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_COMPONENTS_DESC" />
+                       label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_COMPONENTS_LABEL"
+                       description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_COMPONENTS_DESC"/>
                 <field name="exclude_urls" type="textarea" rows="20"
-                    label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_LABEL"
-                    description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_DESC" />
-				<field name="debug" type="radio"
-					description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_DESC"
-					label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_LABEL"
-					default="0"
-					class="btn-group btn-group-yesno"
-				>
-					<option value="0">JNO</option>
-					<option value="1">JYES</option>
-				</field>
-	        </fieldset>
+                       label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_LABEL"
+                       description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_EXCLUDE_URLS_DESC"/>
+                <field name="debug" type="radio"
+                       description="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_DESC"
+                       label="PLG_SYSTEM_LANGUAGEDOMAINS_FIELD_DEBUG_LABEL"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                        >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
         </fields>
     </config>
 
     <updateservers>
-        <server type="extension" priority="1" name="plg_system_languagedomains">https://www.yireo.com/updates/plg_system_languagedomains.xml</server>
+        <server type="extension" priority="1" name="plg_system_languagedomains">
+            https://www.yireo.com/updates/plg_system_languagedomains.xml
+        </server>
     </updateservers>
 </extension>

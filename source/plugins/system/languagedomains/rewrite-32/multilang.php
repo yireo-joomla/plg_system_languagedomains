@@ -38,7 +38,7 @@ class JLanguageMultilang
             $active = $menu->getActive();
             $default = $menu->getDefault();
 
-            if ($active->id == $default->id)
+            if (!empty($active) && !empty($default) && $active->id == $default->id)
             {
                 return false;
             }
