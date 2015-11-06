@@ -68,6 +68,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$this->originalDefaultLanguage = JComponentHelper::getParams('com_languages')
 			->get('site');
+
 		$this->app = JFactory::getApplication();
 
 		// If this is the Site-application
@@ -713,6 +714,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 				$currentUrl = JURI::current();
 				$newUrl = str_replace(JURI::base(), $domain, $currentUrl);
 
+		        if ($this->params->get('debug', 0) == 1)
+                {
+                    echo '<a href="' . $newUrl . '">' . $newUrl . '</a>';
+                    exit;
+                }
+
 				// Set the cookie
 				$conf = JFactory::getConfig();
 				$cookie_domain = $conf->get('config.cookie_domain', '');
@@ -773,6 +780,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			// Replace the current domain with the new domain
 			$currentUrl = JURI::current();
 			$newUrl = str_replace($currentDomain, $primaryDomain, $currentUrl);
+
+		    if ($this->params->get('debug', 0) == 1)
+            {
+                echo '<a href="' . $newUrl . '">' . $newUrl . '</a>';
+                exit;
+            }
 
 			// Redirect
 			$this->app->redirect($newUrl);
@@ -941,21 +954,22 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	{
 		$this->currentLanguageTag = $languageTag;
 		$this->current_lang = $languageTag;
+		$languageSef = $this->getLanguageSefByTag($languageTag);
 
 		$prop = new ReflectionProperty($this, 'default_lang');
 
 		if ($prop->isStatic())
 		{
-			self::$default_lang = $languageTag;
+			self::$default_lang = $languageSef;
 		}
 		else
 		{
-			$this->default_lang = $languageTag;
+			$this->default_lang = $languageSef;
 		}
 
 		// Set the input variable
 		$this->app->input->set('language', $languageTag);
-		$this->app->input->set('lang', $languageTag);
+		$this->app->input->set('lang', $languageSef);
 
 		// Rerun the constructor ugly style
 		JFactory::getLanguage()
