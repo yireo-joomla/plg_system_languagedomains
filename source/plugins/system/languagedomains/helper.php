@@ -86,10 +86,10 @@ class PlgSystemLanguageDomainsHelper
 	{
         $app = JFactory::getApplication();
         
-        if ($app->isAdmin())
+        /*if ($app->isAdmin())
         {
             return;
-        }
+        }*/
 
 		JLoader::import('joomla.version');
 		$version = new JVersion;
