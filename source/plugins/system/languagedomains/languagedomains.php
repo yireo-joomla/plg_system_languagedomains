@@ -826,15 +826,17 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function resetPathForHome($languageTag)
 	{
-		$menu = $this->app->getMenu();
-		$active = $menu->getActive();
+        $languageSef = $this->getLanguageSefByTag($languageTag);
+        $menu = $this->app->getMenu();
+        $active = $menu->getActive();
+        $currentPath = JURI::getInstance()->toString(array('path'));
+        $languagePrefix = '/'. $languageSef;
 
-		if (!empty($active) && $active->home == 1)
-		{
-			$languageSef = $this->getLanguageSefByTag($languageTag);
-			$uri = JUri::getInstance();
-			$uri->setPath('/' . $languageSef . '/');
-		}
+        if (!empty($active) && $active->home == 1 && in_array($currentPath, array('', '/')))
+        {
+            $uri = JUri::getInstance();
+            $uri->setPath('/' . $languagePrefix . $currentPath);
+        }
 	}
 
 	/**
