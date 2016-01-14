@@ -53,6 +53,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected $debugMessages;
 
+    /**
+     * @var array
+     */
+    protected $timers;
+
 	/**
 	 * Constructor
 	 *
@@ -66,8 +71,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$rt = parent::__construct($subject, $config);
 
-		$this->originalDefaultLanguage = JComponentHelper::getParams('com_languages')
-			->get('site');
+        $componentParams = JComponentHelper::getParams('com_languages');
+		$this->originalDefaultLanguage = $componentParams->get('site');
 
 		$this->app = JFactory::getApplication();
 
@@ -221,6 +226,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function onAfterRoute()
 	{
+        $this->startTimer('onAfterRoute');
+
 		// Run the event of the parent-plugin
 		if (method_exists(get_parent_class(), 'onAfterRoute'))
 		{
@@ -260,6 +267,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		$this->redirectDomainToPrimaryDomain($languageTag);
 
 		$this->resetPathForHome($languageTag);
+
+        $this->endTimer('onAfterRoute');
 	}
 
 	/**
@@ -267,7 +276,23 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function onAfterDispatch()
 	{
-		parent::onAfterDispatch();
+        $this->startTimer('onAfterDispatch');
+
+		$languageTag = JFactory::getLanguage()->getTag();
+        $languageSef = $this->getLanguageSefByTag($languageTag);
+
+        if (!empty($languageSef))
+        {
+            $uri = JURI::getInstance();
+            $path = $uri->getPath();
+            $uri->setPath('/' . $languageSef . '/' . preg_replace('/^\//', '', $path));
+        }
+
+		$rt = parent::onAfterDispatch();
+
+        $this->endTimer('onAfterDispatch');
+
+        return $rt;
 	}
 
 	/**
@@ -382,8 +407,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteShortUrls(&$buffer, $languageSef, $primaryUrl, $secondaryDomains)
 	{
+        $this->startTimer('rewriteShortUrls');
+
 		if (preg_match_all('/([\'\"]{1})\/(' . $languageSef . ')\/([^\'\"]*)([\'\"]{1})/', $buffer, $matches))
 		{
+
 			foreach ($matches[0] as $index => $match)
 			{
 				$match = preg_replace('/(\'|\")/', '', $match);
@@ -405,6 +433,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 				}
 			}
 		}
+        else
+        {
+		    $this->debug('No matches');
+        }
+
+        $this->endTimer('rewriteShortUrls');
 	}
 
 	/**
@@ -416,6 +450,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteShortUrlsWithIndex(&$buffer, $languageSef, $primaryUrl, $secondaryDomains)
 	{
+        $this->startTimer('rewriteShortUrlsWithIndex');
 		$config = JFactory::getConfig();
 
 		if ($config->get('sef_rewrite', 0) == 0)
@@ -434,7 +469,13 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 					}
 				}
 			}
+            else
+            {
+	    	    $this->debug('No matches');
+            }
 		}
+
+        $this->endTimer('rewriteShortUrlsWithIndex');
 	}
 
 	/**
@@ -450,6 +491,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteFullUrls(&$buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains)
 	{
+        $this->startTimer('rewriteFullUrls');
+
 		$bindings = $this->getBindings();
 		$allDomains = $this->getAllDomains();
 
@@ -500,6 +543,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 				}
 			}
 		}
+        else
+        {
+		    $this->debug('No matches');
+        }
+
+        $this->endTimer('rewriteFullUrls');
 
 		return true;
 	}
@@ -517,18 +566,29 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteFullSefUrls(&$buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains)
 	{
+        $this->startTimer('rewriteFullSefUrls');
+
 		$bindings = $this->getBindings();
 		$allDomains = $this->getAllDomains();
 
 		if (empty($bindings))
 		{
+            $this->endTimer('rewriteFullSefUrls');
+
 			return false;
 		}
 
+        if (strstr($buffer, '?lang=' . $languageSef) == false && strstr($buffer, '&lang=' . $languageSef) == false)
+        {
+            $this->endTimer('rewriteFullSefUrls');
+
+            return false;
+        }
+
 		// Scan for full URLs
-		if (preg_match_all('/([^\'\"]+)lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
+		if (preg_match_all('/([\'\"]{1})(.*)([\?\&])lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
 		{
-			foreach ($matches[1] as $index => $match)
+			foreach ($matches[2] as $index => $match)
 			{
 				$match = preg_replace('/\?$/', '', $match);
 				$match = preg_replace('/^\//', '', $match);
@@ -546,11 +606,17 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 				if ($this->allowUrlChange($match) == true)
 				{
-					$replacement = $primaryUrl . $match . $matches[2][$index];
+					$replacement = $matches[0][$index] . $primaryUrl . $match . $matches[4][$index];
 					$buffer = str_replace($matches[0][$index], $replacement, $buffer);
 				}
 			}
 		}
+        else
+        {
+		    $this->debug('No matches');
+        }
+
+        $this->endTimer('rewriteFullSefUrls');
 
 		return true;
 	}
@@ -1239,4 +1305,21 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		return false;
 	}
+
+    private function startTimer($label)
+    {
+        $this->timers[$label] = microtime(true);
+    }
+
+    private function getTimer($label)
+    {
+        return microtime(true) - $this->timers[$label];
+    }
+
+    private function endTimer($label)
+    {
+        $timer = $this->getTimer($label);
+
+		$this->debug($label . ' = ' . $timer . 's');
+    }
 }
