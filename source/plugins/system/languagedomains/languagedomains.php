@@ -383,6 +383,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			$this->params->set('remove_default_prefix', 0);
 
 			parent::buildRule($router, $uri);
+
+            $language = JFactory::getLanguage();
+            $languageSef = $this->getLanguageSefByTag($language->getTag());
+            $uri->setPath(str_replace('index.php/'.$languageSef.'/', 'index.php', $uri->getPath()));
 		}
 	}
 
