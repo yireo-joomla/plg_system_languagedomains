@@ -590,7 +590,7 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
         }
 
 		// Scan for full URLs
-		if (preg_match_all('/([\'\"]{1})(.*)([\?\&])lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
+		if (preg_match_all('/([\'\"]{1})([^\'\"]+)([\?\&])lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
 		{
 			foreach ($matches[2] as $index => $match)
 			{
