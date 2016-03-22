@@ -2,12 +2,12 @@
 <extension version="2.5" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_LANGUAGEDOMAINS</name>
     <author>Yireo</author>
-    <creationDate>February 2016</creationDate>
+    <creationDate>March 2016</creationDate>
     <copyright>Copyright 2016 Yireo.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>development@yireo.com</authorEmail>
     <authorUrl>http://www.yireo.com/</authorUrl>
-    <version>1.0.45</version>
+    <version>1.0.46</version>
     <description>PLG_SYSTEM_LANGUAGEDOMAINS_DESC</description>
 
     <files>
