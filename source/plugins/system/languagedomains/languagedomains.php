@@ -281,6 +281,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		$languageTag = JFactory::getLanguage()->getTag();
         $languageSef = $this->getLanguageSefByTag($languageTag);
 
+		$rt = parent::onAfterDispatch();
+
         if (!empty($languageSef))
         {
             $uri = JURI::getInstance();
@@ -288,7 +290,6 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
             $uri->setPath('/' . $languageSef . '/' . preg_replace('/^\//', '', $path));
         }
 
-		$rt = parent::onAfterDispatch();
 
         $this->endTimer('onAfterDispatch');
 
@@ -899,13 +900,13 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
         $languageSef = $this->getLanguageSefByTag($languageTag);
         $menu = $this->app->getMenu();
         $active = $menu->getActive();
-        $currentPath = JURI::getInstance()->toString(array('path'));
+        $currentPath = JURI::getInstance()->toString(array('path', 'query'));
         $languagePrefix = '/'. $languageSef;
 
         if (!empty($active) && $active->home == 1 && in_array($currentPath, array('', '/')))
         {
             $uri = JUri::getInstance();
-            $uri->setPath('/' . $languagePrefix . $currentPath);
+            $uri->setPath('/');
         }
 	}
 
