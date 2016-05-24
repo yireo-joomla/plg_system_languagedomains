@@ -378,16 +378,16 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function buildRule(&$router, &$uri)
 	{
-		if ($this->helper->isFalangDatabaseDriver() == false)
+		if ((bool) $this->params->get('load_buildrule') || $this->helper->isFalangDatabaseDriver() == false)
 		{
 			// Make sure to append the language prefix to all URLs, so we can properly parse the HTML using onAfterRender()
 			$this->params->set('remove_default_prefix', 0);
 
 			parent::buildRule($router, $uri);
-
-            $language = JFactory::getLanguage();
-            $languageSef = $this->getLanguageSefByTag($language->getTag());
-            $uri->setPath(str_replace('index.php/'.$languageSef.'/', 'index.php', $uri->getPath()));
+			
+			$language = JFactory::getLanguage();
+			$languageSef = $this->getLanguageSefByTag($language->getTag());
+			$uri->setPath(str_replace('index.php/' . $languageSef . '/', 'index.php', $uri->getPath()));
 		}
 	}
 
