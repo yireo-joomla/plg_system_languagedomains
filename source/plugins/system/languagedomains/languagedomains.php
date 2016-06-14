@@ -246,6 +246,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		// Detect the current language again, but now after routing
 		$languageTag = $this->detectLanguage();
 
+        // Don't continue for sh404SEF
+        if ($this->isSh404Sef())
+        {
+            return;
+        }
+
 		// If this language is not included in this plugins configuration, set it as current
 		if (!$this->isLanguageBound($languageTag))
 		{
@@ -1325,4 +1331,16 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$this->debug($label . ' = ' . $timer . 's');
 	}
+
+    private function isSh404Sef()
+    {
+        $plugin = JPluginHelper::getPlugin('system', 'sh404sef');
+
+        if (!empty($plugin))
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
