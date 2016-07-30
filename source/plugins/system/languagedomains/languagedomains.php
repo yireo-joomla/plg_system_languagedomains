@@ -265,6 +265,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$this->debug('Current language tag: ' . $languageTag);
 
+        $language = JFactory::getLanguage();
+        $option = $this->app->input->getCmd('option');
+        $language->load($option, JPATH_SITE, $languageTag, true);
+
 		if (empty($languageTag))
 		{
 			$this->redirectLanguageToDomain($languageTag);
