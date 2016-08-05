@@ -1082,6 +1082,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			$this->app->loadLanguage($language);
 		}
 
+        if (method_exists($this->app, 'setLanguageFilter'))
+        {
+            $this->app->setLanguageFilter(true);
+        }
+
 		// Falang override
 		$registry = JFactory::getConfig();
 		$registry->set('config.defaultlang', $this->originalDefaultLanguage);
