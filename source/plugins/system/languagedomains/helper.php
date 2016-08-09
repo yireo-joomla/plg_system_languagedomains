@@ -118,13 +118,12 @@ class PlgSystemLanguageDomainsHelper
 				defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
 				include_once $vmConfigFile;
-
-				VmConfig::loadConfig();
 			}
 		}
 
 		if (class_exists('VmConfig'))
 		{
+			VmConfig::loadConfig();
 			VmConfig::$vmlang = false;
 			VmConfig::setdbLanguageTag();
 		}
