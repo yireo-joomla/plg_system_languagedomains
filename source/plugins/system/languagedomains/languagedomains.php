@@ -579,24 +579,20 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	protected function rewriteFullSefUrls(&$buffer, $languageSef, $primaryUrl, $primaryDomain, $secondaryDomains)
 	{
-		$this->startTimer('rewriteFullSefUrls');
-
 		$bindings   = $this->getBindings();
 		$allDomains = $this->getAllDomains();
 
 		if (empty($bindings))
 		{
-			$this->endTimer('rewriteFullSefUrls');
-
 			return false;
 		}
 
 		if (strstr($buffer, '?lang=' . $languageSef) == false && strstr($buffer, '&lang=' . $languageSef) == false)
 		{
-			$this->endTimer('rewriteFullSefUrls');
-
 			return false;
 		}
+
+		$this->startTimer('rewriteFullSefUrls');
 
 		// Scan for full URLs
 		if (preg_match_all('/([\'\"]{1})([^\'\"]+)([\?\&])lang=' . $languageSef . '([\'\"]{1})/', $buffer, $matches))
