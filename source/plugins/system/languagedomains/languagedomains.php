@@ -611,6 +611,12 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 					continue;
 				}
 
+                // Skip broken entries
+                if (preg_match('/^([^a-zA-Z0-9\/]+)/', $match))
+                {
+                    continue;
+                }
+
 				$this->debug('Match full URL: ' . $match . ' [' . $languageSef . ']');
 
 				if ($this->allowUrlChange($match) == true)
