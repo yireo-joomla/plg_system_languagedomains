@@ -246,11 +246,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		// Detect the current language again, but now after routing
 		$languageTag = $this->detectLanguage();
 
-        // Don't continue for sh404SEF
-        if ($this->isSh404Sef())
-        {
-            return;
-        }
+		// Don't continue for sh404SEF
+		if ($this->isSh404Sef())
+		{
+			return;
+		}
 
 		// If this language is not included in this plugins configuration, set it as current
 		if (!$this->isLanguageBound($languageTag))
@@ -265,9 +265,9 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$this->debug('Current language tag: ' . $languageTag);
 
-        $language = JFactory::getLanguage();
-        $option = $this->app->input->getCmd('option');
-        $language->load($option, JPATH_SITE, $languageTag, true);
+		$language = JFactory::getLanguage();
+		$option   = $this->app->input->getCmd('option');
+		$language->load($option, JPATH_SITE, $languageTag, true);
 
 		if (empty($languageTag))
 		{
@@ -611,11 +611,11 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 					continue;
 				}
 
-                // Skip broken entries
-                if (preg_match('/^([^a-zA-Z0-9\/]+)/', $match))
-                {
-                    continue;
-                }
+				// Skip broken entries
+				if (preg_match('/^([^a-zA-Z0-9\/]+)/', $match))
+				{
+					continue;
+				}
 
 				$this->debug('Match full URL: ' . $match . ' [' . $languageSef . ']');
 
@@ -1084,10 +1084,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 			$this->app->loadLanguage($language);
 		}
 
-        if (method_exists($this->app, 'setLanguageFilter'))
-        {
-            $this->app->setLanguageFilter(true);
-        }
+		if (method_exists($this->app, 'setLanguageFilter'))
+		{
+			$this->app->setLanguageFilter(true);
+		}
 
 		// Falang override
 		$registry = JFactory::getConfig();
@@ -1343,15 +1343,15 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		$this->debug($label . ' = ' . $timer . 's');
 	}
 
-    private function isSh404Sef()
-    {
-        $plugin = JPluginHelper::getPlugin('system', 'sh404sef');
+	private function isSh404Sef()
+	{
+		$plugin = JPluginHelper::getPlugin('system', 'sh404sef');
 
-        if (!empty($plugin))
-        {
-            return true;
-        }
+		if (!empty($plugin))
+		{
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

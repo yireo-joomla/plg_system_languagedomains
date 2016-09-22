@@ -11,14 +11,19 @@
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
+/**
+ * Class PlgSystemLanguageDomainsHelper
+ */
 class PlgSystemLanguageDomainsHelper
 {
 	/**
 	 * Method to detect whether Falang is active or not
+	 *
+	 * @return bool
 	 */
 	public function isFalangDatabaseDriver()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		if ($db instanceof JFalangDatabase)
 		{
@@ -28,9 +33,8 @@ class PlgSystemLanguageDomainsHelper
 		return false;
 	}
 
-
 	/**
-	 * Helper-method to get a proper URL from the domain @access public @param string @return string
+	 * Helper-method to get a proper URL from the domain
 	 *
 	 * @param   string $url URL to obtain the domain from
 	 *
@@ -50,7 +54,7 @@ class PlgSystemLanguageDomainsHelper
 	}
 
 	/**
-	 * Helper-method to get a proper URL from the domain @access public @param string @return string
+	 * Helper-method to get a proper URL from the domain
 	 *
 	 * @param   string $domain Domain to obtain the URL from
 	 *
@@ -61,7 +65,7 @@ class PlgSystemLanguageDomainsHelper
 		// Add URL-elements to the domain
 		if (preg_match('/^(http|https):\/\//', $domain) == false)
 		{
-			$domain = 'http://' . $domain;
+			$domain = ($this->isSSL()) ? 'https://' . $domain : 'http://' . $domain;
 		}
 
 		if (preg_match('/\/$/', $domain) == false)
@@ -84,15 +88,8 @@ class PlgSystemLanguageDomainsHelper
 	 */
 	public function overrideClasses()
 	{
-        $app = JFactory::getApplication();
-        
-        /*if ($app->isAdmin())
-        {
-            return;
-        }*/
-
 		JLoader::import('joomla.version');
-		$version = new JVersion;
+		$version      = new JVersion;
 		$majorVersion = $version->getShortVersion();
 
 		if (version_compare($majorVersion, '3.2', 'ge'))
@@ -107,8 +104,6 @@ class PlgSystemLanguageDomainsHelper
 	 */
 	public function resetDefaultLanguage()
 	{
-		//JFactory::getLanguage()->setDefault('en_GB');
-
 		if (!class_exists('VmConfig'))
 		{
 			$vmConfigFile = JPATH_ROOT . '/administrator/components/com_virtuemart/helpers/config.php';
@@ -127,5 +122,28 @@ class PlgSystemLanguageDomainsHelper
 			VmConfig::$vmlang = false;
 			VmConfig::setdbLanguageTag();
 		}
+	}
+
+	/**
+	 * Helper-method to check whether SSL is active or not
+	 *
+	 * @return bool
+	 */
+	protected function isSSL()
+	{
+		// Support for proxy headers
+		if (isset($_SERVER['X-FORWARDED-PROTO']))
+		{
+			if ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		$uri = JUri::getInstance();
+
+		return (bool) $uri->isSSL();
 	}
 }
