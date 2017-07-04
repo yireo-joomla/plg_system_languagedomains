@@ -1,7 +1,6 @@
 # Language Domains plugin for Joomla
 
-UNMAINTAINED PROJECT
-
+## UNMAINTAINED PROJECT
 This project is no longer maintained. Any issues will not be actively picked up. Pull Requests will be merged unchecked. The sources here are up-for-grabs.
 
 ## Introduction
@@ -59,3 +58,12 @@ We do not provide support for the combination of our plugin and Falang. You can 
 According to some SEO readings on the web, having a website that is matching the offered language with the choosen domain-suffix (TLD or top-level domainname) has a beneficial effect on your SEO. This means that if you have German website with a domainname ending with .de (German TLD), this website would be preferred over the same German website with a domainname ending with .fr (French TLD).
 
 This is what others are saying. But we are not able to confirm this or unconfirm this. We are simply developing cool plugins. Tuning of SEO is where you come in. If you want know whether this actually has an effect on SEO, either experiment with it (as SEO experts do already) or reconfirm what we have read on the web.
+
+## FAQ: Will my site be indexed on all languages on all domains?
+We don't know the structure of your site, so we can't answer this question either. If you want to know what is being indexed, scan your site for links. If a language-link is there, and it can be followed, without switching domains, it might be a bug in our plugin and we are happy to fix that.
+
+## FAQ: Should all the domains point to the same Joomla! site?
+Yes. You need one Joomla! site with multiple languages and multiple domains. Before installing this plugin, make sure that all domains actually point to the same Joomla! site. Also make sure that all languages are working and are switching properly. If everything is configured properly, then you are ready to install and configure this plugin.
+
+## FAQ: Can I also use this for my subdomains?
+Yes. As far as this plugin is concerned, a domain-name and a subdomain are the same thing.
