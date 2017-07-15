@@ -128,6 +128,9 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		// Remove the cookie if it exists
 		$this->cleanLanguageCookie();
 
+		// fix bug after update to joomla 3.7.3 (bug: prefix in home page of main language)
+		JFactory::getSession()->set('plg_system_languagefilter.language', substr($this->detectLanguage(),0,2));
+		
 		// Make sure not to redirect to a URL with language prefix
 		$this->params->set('remove_default_prefix', 1);
 
