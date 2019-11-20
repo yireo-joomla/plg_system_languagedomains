@@ -125,6 +125,10 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	 */
 	public function onAfterInitialise()
 	{
+		// Store the previous language tag in the plugin
+		$this->oldLanguageTag = JFactory::getLanguage()
+				->getTag();
+		
 		// Remove the cookie if it exists
 		$this->cleanLanguageCookie();
 
@@ -225,6 +229,58 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 	}
 
 	/**
+	 * Function to get the paths of all the language files loaded before the language switch
+	 */
+	function getPaths() {
+		$loadOverride = function($filename = null) {
+			// Get the path of all the translation files already loaded
+			return $this->paths;
+		};
+
+		// We use Closure here as we need to access private attributes of JLanguage
+		$lang = JFactory::getLanguage();
+		$loadOverrideCB = $loadOverride->bindTo($lang, 'JLanguage');
+		$this->paths = $loadOverrideCB();
+	}
+
+	/**
+	 * Function to relaod all the language files in the new language after the language switch
+	 */
+	function reloadPaths($oldtag, $tag) {
+		$loadOverride = function($paths, $oldcode, $code) {
+			foreach($paths as $extension => $extensionPaths) {
+				foreach($extensionPaths as $fileName => $oldResult) {
+
+					// Replace the language code in the translation file path
+					$fileName = str_replace($oldcode, $code, $fileName);
+
+					// Parse the language file
+					$strings = $this->parse($fileName);
+					$result = false;
+
+					// Add the translations to JLanguage
+					if ($strings !== array()) {
+						$this->strings = array_replace($this->strings, $strings, $this->override);
+						$result = true;
+					}
+					// Record the result of loading the extension's file
+					if (!isset($this->paths[$extension]))
+					{
+						$this->paths[$extension] = array();
+					}
+
+					$this->paths[$extension][$fileName] = $result;
+				}
+			}
+		};
+
+		// We use Closure here as we need to access private attributes of JLanguage
+		$lang = JFactory::getLanguage();
+		$loadOverrideCB = $loadOverride->bindTo($lang, 'JLanguage');
+		$loadOverrideCB($this->paths, $oldtag, $tag);
+	}
+
+	/**
 	 * Event onAfterRoute
 	 */
 	public function onAfterRoute()
@@ -254,6 +310,9 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 		{
 			return;
 		}
+		
+		// Get the paths of all the language files loaded before the language switch
+		$this->getPaths();
 
 		// If this language is not included in this plugins configuration, set it as current
 		if (!$this->isLanguageBound($languageTag))
@@ -268,9 +327,8 @@ class PlgSystemLanguageDomains extends PlgSystemLanguageFilter
 
 		$this->debug('Current language tag: ' . $languageTag);
 
-		$language = JFactory::getLanguage();
-		$option   = $this->app->input->getCmd('option');
-		$language->load($option, JPATH_SITE, $languageTag, true);
+		// Relaod all the language files in the new language after the language switch
+		$this->reloadPaths($this->oldLanguageTag, $languageTag);
 
 		if (empty($languageTag))
 		{
